@@ -332,4 +332,50 @@
   .feature-vote-toggle--active {
     @apply bg-btn-primary text-btn-primary-fg border-btn-primary;
   }
+
+  /* ── Markdown Editor ──────────────────────────────────── */
+  .md-editor-toolbar {
+    @apply flex items-center justify-between px-4 py-3 bg-card border-b border-border shrink-0;
+  }
+
+  .md-editor-render-btn {
+    @apply bg-btn-primary text-btn-primary-fg font-semibold py-2 px-5 rounded-lg text-sm transition-colors hover:opacity-90 active:scale-[0.98];
+  }
+
+  .md-editor-print-btn {
+    @apply flex items-center gap-1.5 bg-secondary text-secondary-foreground font-semibold py-2 px-4 rounded-lg text-sm transition-colors hover:opacity-80 active:scale-[0.98] disabled:opacity-40;
+  }
+
+  .md-editor-pane-label {
+    @apply text-xs font-semibold text-muted-foreground uppercase tracking-wider px-4 py-2 bg-accent/50 border-b border-border;
+  }
+
+  .md-editor-textarea {
+    @apply flex-1 resize-none p-4 bg-background text-foreground font-mono text-sm leading-relaxed focus:outline-none;
+  }
+
+  .md-editor-paper {
+    width: 816px;   /* 8.5in at 96dpi */
+    min-height: 1056px; /* 11in at 96dpi */
+    @apply bg-card text-card-foreground p-16 shadow-lg mx-auto;
+    font-family: 'Georgia', 'Times New Roman', serif;
+    font-size: 12pt;
+    line-height: 1.6;
+  }
+
+  .md-editor-paper h1 { font-size: 24pt; margin: 0 0 12pt; font-weight: bold; }
+  .md-editor-paper h2 { font-size: 18pt; margin: 16pt 0 8pt; font-weight: bold; }
+  .md-editor-paper h3 { font-size: 14pt; margin: 12pt 0 6pt; font-weight: bold; }
+  .md-editor-paper p { margin: 0 0 8pt; }
+  .md-editor-paper ul, .md-editor-paper ol { margin: 0 0 8pt; padding-left: 24pt; }
+  .md-editor-paper li { margin: 0 0 4pt; }
+  .md-editor-paper code { background: var(--muted); padding: 2px 4px; border-radius: 3px; font-size: 11pt; }
+  .md-editor-paper pre { background: var(--muted); padding: 12pt; border-radius: 4px; overflow-x: auto; margin: 0 0 8pt; }
+  .md-editor-paper pre code { background: none; padding: 0; }
+  .md-editor-paper blockquote { border-left: 3px solid var(--border); margin: 0 0 8pt; padding-left: 12pt; color: var(--muted-foreground); }
+  .md-editor-paper table { border-collapse: collapse; width: 100%; margin: 0 0 8pt; }
+  .md-editor-paper th, .md-editor-paper td { border: 1px solid var(--border); padding: 6pt 8pt; text-align: left; }
+  .md-editor-paper th { background: var(--accent); font-weight: bold; }
+  .md-editor-paper a { color: var(--button-primary); text-decoration: underline; }
+  .md-editor-paper hr { border: none; border-top: 1px solid var(--border); margin: 16pt 0; }
 }
