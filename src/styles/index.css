@@ -1,0 +1,16 @@
+@import './fonts.css';
+@import './tailwind.css';
+@import './theme.css';
+
+/* Carousel peek effect: fade non-center slides on larger screens */
+@media (min-width: 481px) {
+  .carousel-peek .slick-slide {
+    opacity: 0.3;
+    transform: scale(0.9);
+    transition: opacity 0.4s ease, transform 0.4s ease;
+  }
+  .carousel-peek .slick-slide.slick-center {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
