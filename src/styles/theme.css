@@ -332,4 +332,239 @@
   .feature-vote-toggle--active {
     @apply bg-btn-primary text-btn-primary-fg border-btn-primary;
   }
+
+  /* ── Markdown Editor ──────────────────────────────────── */
+  .md-editor-toolbar {
+    @apply flex items-center justify-between px-4 py-3 bg-card border-b border-border shrink-0;
+  }
+
+  .md-editor-render-btn {
+    @apply flex items-center gap-1.5 bg-btn-primary text-btn-primary-fg font-semibold py-2 px-5 rounded-lg text-sm transition-colors hover:opacity-90 active:scale-[0.98] disabled:opacity-50;
+  }
+
+  .md-editor-download-btn {
+    @apply flex items-center gap-1.5 bg-btn-secondary text-btn-secondary-fg font-semibold py-2 px-5 rounded-lg text-sm transition-colors hover:opacity-90 active:scale-[0.98];
+  }
+
+  .md-editor-select {
+    @apply bg-input-background text-foreground border border-border rounded-lg py-2 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-ring;
+  }
+
+  .md-editor-pane-label {
+    @apply text-xs font-semibold text-muted-foreground uppercase tracking-wider px-4 py-2 bg-accent/50 border-b border-border;
+  }
+
+  .md-editor-textarea {
+    @apply flex-1 resize-none p-4 bg-background text-foreground font-mono text-sm leading-relaxed focus:outline-none;
+  }
+
+  /* ── Resume Page (Screen Preview) ──────────────────── */
+  .resume-page {
+    width: 816px;   /* 8.5in at 96dpi */
+    min-height: 1056px; /* 11in at 96dpi */
+    @apply bg-card text-card-foreground shadow-lg mx-auto mb-6;
+    padding: 0.5in;
+    box-sizing: border-box;
+  }
+
+  /* ── Resume Print Page ─────────────────────────────── */
+  .resume-print-page {
+    width: 100%;
+    padding: 0;
+    box-sizing: border-box;
+    page-break-after: always;
+    break-after: page;
+  }
+
+  .resume-print-page:last-child {
+    page-break-after: auto;
+    break-after: auto;
+  }
+
+  /* ── Resume Prose (compact typography overrides) ──── */
+  .resume-prose {
+    --tw-prose-body: var(--foreground);
+    --tw-prose-headings: var(--foreground);
+    --tw-prose-links: var(--button-primary);
+    font-size: 10pt;
+    line-height: 1.4;
+  }
+
+  /* ── Fitted resume uses CSS variables from fitting algorithm ── */
+  .resume-fitted .resume-prose {
+    font-size: var(--fit-base-font-size, 10pt);
+  }
+
+  .resume-fitted .resume-prose h2 {
+    margin-top: var(--fit-h2-margin-top, 10pt);
+  }
+
+  .resume-fitted .resume-prose p {
+    margin-bottom: var(--fit-p-margin-bottom, 4pt);
+  }
+
+  .resume-fitted .resume-prose li {
+    margin-bottom: var(--fit-li-margin-bottom, 1pt);
+  }
+
+  .resume-prose h1 {
+    font-size: 20pt;
+    font-weight: 700;
+    margin: 0 0 4pt;
+    padding-bottom: 2pt;
+    line-height: 1.2;
+  }
+
+  .resume-prose h2 {
+    font-size: 11pt;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin: 10pt 0 4pt;
+    padding-bottom: 2pt;
+    border-bottom: 1.5px solid currentColor;
+    line-height: 1.3;
+  }
+
+  .resume-prose h3 {
+    font-size: 10pt;
+    font-weight: 700;
+    margin: 6pt 0 2pt;
+    line-height: 1.3;
+  }
+
+  .resume-prose p {
+    margin: 0 0 4pt;
+  }
+
+  .resume-prose ul, .resume-prose ol {
+    margin: 0 0 4pt;
+    padding-left: 16pt;
+  }
+
+  .resume-prose li {
+    margin: 0 0 1pt;
+  }
+
+  .resume-prose li::marker {
+    color: var(--muted-foreground);
+  }
+
+  .resume-prose hr {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 8pt 0;
+  }
+
+  .resume-prose a {
+    color: var(--button-primary);
+    text-decoration: underline;
+  }
+
+  .resume-prose strong {
+    font-weight: 700;
+  }
+
+  .resume-prose em {
+    font-style: italic;
+  }
+
+  .resume-prose code {
+    background: var(--muted);
+    padding: 1px 3px;
+    border-radius: 2px;
+    font-size: 9pt;
+  }
+
+  .resume-prose pre {
+    background: var(--muted);
+    padding: 8pt;
+    border-radius: 3px;
+    overflow-x: auto;
+    margin: 0 0 4pt;
+    font-size: 9pt;
+  }
+
+  .resume-prose pre code {
+    background: none;
+    padding: 0;
+  }
+
+  .resume-prose blockquote {
+    border-left: 2px solid var(--border);
+    margin: 0 0 4pt;
+    padding-left: 8pt;
+    color: var(--muted-foreground);
+  }
+
+  .resume-prose table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 0 0 4pt;
+    font-size: 9pt;
+  }
+
+  .resume-prose th, .resume-prose td {
+    border: 1px solid var(--border);
+    padding: 3pt 6pt;
+    text-align: left;
+  }
+
+  .resume-prose th {
+    background: var(--accent);
+    font-weight: 700;
+  }
+}
+
+/* ── Print Styles ──────────────────────────────────────── */
+@media print {
+  @page {
+    size: 8.5in 11in;
+    margin: 0.5in;
+  }
+
+  body {
+    margin: 0;
+    padding: 0;
+    background: white !important;
+    color: black !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* Hide everything except print resume */
+  .print\\:hidden {
+    display: none !important;
+  }
+
+  .print\\:block {
+    display: block !important;
+  }
+
+  #print-resume {
+    display: block !important;
+  }
+
+  .resume-print-page {
+    color: black;
+  }
+
+  .resume-prose {
+    --tw-prose-body: #1a1a1a;
+    --tw-prose-headings: #1a1a1a;
+    color: #1a1a1a;
+  }
+
+  .resume-prose h2 {
+    border-bottom-color: #1a1a1a;
+  }
+
+  .resume-prose a {
+    color: #1a1a1a;
+    text-decoration: underline;
+  }
+
+  /* Prevent awkward page splits */
+  h1, h2, h3 { page-break-after: avoid; break-after: avoid; }
+  li, p { page-break-inside: avoid; break-inside: avoid; }
 }
