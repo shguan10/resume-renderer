@@ -339,7 +339,11 @@
   }
 
   .md-editor-render-btn {
-    @apply flex items-center gap-1.5 bg-btn-primary text-btn-primary-fg font-semibold py-2 px-5 rounded-lg text-sm transition-colors hover:opacity-90 active:scale-[0.98];
+    @apply flex items-center gap-1.5 bg-btn-primary text-btn-primary-fg font-semibold py-2 px-5 rounded-lg text-sm transition-colors hover:opacity-90 active:scale-[0.98] disabled:opacity-50;
+  }
+
+  .md-editor-download-btn {
+    @apply flex items-center gap-1.5 bg-btn-secondary text-btn-secondary-fg font-semibold py-2 px-5 rounded-lg text-sm transition-colors hover:opacity-90 active:scale-[0.98];
   }
 
   .md-editor-select {
@@ -384,6 +388,23 @@
     --tw-prose-links: var(--button-primary);
     font-size: 10pt;
     line-height: 1.4;
+  }
+
+  /* ── Fitted resume uses CSS variables from fitting algorithm ── */
+  .resume-fitted .resume-prose {
+    font-size: var(--fit-base-font-size, 10pt);
+  }
+
+  .resume-fitted .resume-prose h2 {
+    margin-top: var(--fit-h2-margin-top, 10pt);
+  }
+
+  .resume-fitted .resume-prose p {
+    margin-bottom: var(--fit-p-margin-bottom, 4pt);
+  }
+
+  .resume-fitted .resume-prose li {
+    margin-bottom: var(--fit-li-margin-bottom, 1pt);
   }
 
   .resume-prose h1 {
