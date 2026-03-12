@@ -390,6 +390,23 @@
     line-height: 1.4;
   }
 
+  /* ── Fitted resume uses CSS variables from fitting algorithm ── */
+  .resume-fitted .resume-prose {
+    font-size: var(--fit-base-font-size, 10pt);
+  }
+
+  .resume-fitted .resume-prose h2 {
+    margin-top: var(--fit-h2-margin-top, 10pt);
+  }
+
+  .resume-fitted .resume-prose p {
+    margin-bottom: var(--fit-p-margin-bottom, 4pt);
+  }
+
+  .resume-fitted .resume-prose li {
+    margin-bottom: var(--fit-li-margin-bottom, 1pt);
+  }
+
   .resume-prose h1 {
     font-size: 20pt;
     font-weight: 700;

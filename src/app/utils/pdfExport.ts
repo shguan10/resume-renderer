@@ -23,6 +23,8 @@ export async function exportToPdf(containerEl: HTMLElement): Promise<void> {
 
   for (let i = 0; i < pages.length; i++) {
     const page = pages[i];
+    if (!page) continue;
+    
     const canvas = await html2canvas(page, {
       scale: 2, // 2× for crisp output
       width: PX_W,
