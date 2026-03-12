@@ -1,5 +1,11 @@
-import React, { useState, useRef, useCallback } from 'react';
+import React, { useState, useRef, useCallback, useEffect } from 'react';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import { MarkdownEditorLayout } from '@/app/components/layouts/MarkdownEditorLayout';
+import { fitContentToPage, type FitVariables, type FitResult } from '@/app/utils/fittingAlgorithm';
+import { exportToPdf } from '@/app/utils/pdfExport';
+import { toast } from 'sonner';
+import { renderToStaticMarkup } from 'react-dom/server';
 
 const DEFAULT_MARKDOWN = `# Shane Guan
 
@@ -85,26 +91,92 @@ B.S. in Computer Science *(University Honors)*, Minor in Machine Learning — *A
 export type ResumeFont = 'Geist' | 'Inter' | 'Libre Baskerville';
 export type PageLayout = '1' | '2';
 
+const PAGE_BREAK_MARKER = '---page-break---';
+
+interface RenderedPage {
+  html: string;
+  fitVars: FitVariables;
+}
+
+function markdownToHtml(md: string): string {
+  const element = React.createElement(ReactMarkdown, { remarkPlugins: [remarkGfm] }, md);
+  return renderToStaticMarkup(element);
+}
+
 export function MarkdownEditorView() {
   const [markdown, setMarkdown] = useState(DEFAULT_MARKDOWN);
   const [font, setFont] = useState<ResumeFont>('Geist');
   const [pageLayout, setPageLayout] = useState<PageLayout>('2');
-  const paperRef = useRef<HTMLDivElement>(null);
+  const [renderedPages, setRenderedPages] = useState<RenderedPage[] | null>(null);
+  const [isRendering, setIsRendering] = useState(false);
+  const renderContainerRef = useRef<HTMLDivElement>(null);
 
-  const handlePrint = useCallback(() => {
-    window.print();
+  const handleRender = useCallback(() => {
+    setIsRendering(true);
+
+    // Use requestAnimationFrame to let the UI update before heavy work
+    requestAnimationFrame(() => {
+      const rawPages = markdown.split(PAGE_BREAK_MARKER).map((s) => s.trim());
+      const pages = pageLayout === '1' ? [rawPages.join('\n\n')] : rawPages;
+
+      const results: RenderedPage[] = [];
+      const reports: string[] = [];
+
+      for (const pageMd of pages) {
+        const html = markdownToHtml(pageMd);
+        const fitResult: FitResult = fitContentToPage(html, font);
+        results.push({ html, fitVars: fitResult.variables });
+        reports.push(fitResult.report);
+      }
+
+      setRenderedPages(results);
+      setIsRendering(false);
+
+      // Show fitting report toast
+      const combinedReport = reports
+        .map((r, i) => (pages.length > 1 ? `Page ${i + 1}: ${r}` : r))
+        .join('\n');
+      toast.info('Fitting Report', { description: combinedReport, duration: 5000 });
+    });
+  }, [markdown, font, pageLayout]);
+
+  const handleDownloadPdf = useCallback(async () => {
+    if (!renderContainerRef.current) return;
+    toast.info('Generating PDF…');
+    try {
+      await exportToPdf(renderContainerRef.current);
+      toast.success('PDF downloaded!');
+    } catch (err) {
+      toast.error('PDF export failed. Check console for details.');
+      console.error(err);
+    }
   }, []);
+
+  // Ctrl+Enter to render
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if (e.ctrlKey && e.key === 'Enter') {
+        e.preventDefault();
+        handleRender();
+      }
+    };
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, [handleRender]);
 
   return (
     <MarkdownEditorLayout
       markdown={markdown}
       font={font}
       pageLayout={pageLayout}
-      paperRef={paperRef}
+      renderedPages={renderedPages}
+      isRendering={isRendering}
+      renderContainerRef={renderContainerRef}
       onMarkdownChange={setMarkdown}
       onFontChange={setFont}
       onPageLayoutChange={setPageLayout}
-      onPrint={handlePrint}
+      onRender={handleRender}
+      onDownloadPdf={handleDownloadPdf}
     />
   );
 }
