@@ -1,5 +1,3 @@
-import type { Dispatch, SetStateAction } from 'react';
-
 /**
  * Configurable Multi-Variable Fitting Algorithm
  *
@@ -12,7 +10,6 @@ import type { Dispatch, SetStateAction } from 'react';
 const PAGE_HEIGHT_PX = 1056; // 11in × 96dpi
 
 export type StyleValues = Record<string, number>;
-export type StyleValuesSetter = Dispatch<SetStateAction<StyleValues>>;
 
 // ── Types ────────────────────────────────────────────────────────────────
 
@@ -26,8 +23,6 @@ export interface ResizeableStyleDefinition {
   parentKey: string | null;
   childKeys: string[];
   description: string;
-  parent?: ResizeableStyle | null; // this is a cached reference to the parent
-  children?: ResizeableStyle[]; // cached reference to the children
   /** Given current value + resolved children, return whether there's still room to adjust. */
   hasRoomToChange: (currentValue: number, children: ResizeableStyle[]) => boolean;
   /** Return a NextValueGetter producing values to try, or undefined if no room. */
@@ -37,6 +32,8 @@ export interface ResizeableStyleDefinition {
 export interface ResizeableStyle extends ResizeableStyleDefinition {
   getCurrentValue: () => number;
   setCurrentValue: (value: number) => void;
+  parent?: ResizeableStyle | null; // the resolved parent
+  children?: ResizeableStyle[]; // the resolved children
 }
 
 export interface FitResult {
@@ -45,26 +42,19 @@ export interface FitResult {
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────────
-function findStyle(styles: ResizeableStyle[], key: string): ResizeableStyle | undefined {
-  return styles.find(s => s.key === key);
+function mapByKey<T extends { key: string }>(items: T[]): Map<string, T> {
+  return new Map(items.map((item) => [item.key, item]));
 }
 
 /**
  * Resolves and injects parent/child object references into an array of styles.
- * 
- * This function performs an in-place mutation of the `styles` objects, 
- * transforming string-based keys (`parentKey`, `childKeys`) into direct 
- * cached references (`parent`, `children`). 
- * 
- * @param styles - An array of style objects to be interconnected.
- * 
- * @example
- * // After calling this, style.children[0] will point to the actual 
- * // ResizeableStyle object instead of being null.
- * attachStyleHierarchy(myStyles);
+ *
+ * This function performs an in-place mutation of the `styles` objects,
+ * transforming string-based keys (`parentKey`, `childKeys`) into direct
+ * cached references (`parent`, `children`).
  */
 function attachStyleHierarchy(styles: ResizeableStyle[]): void {
-  const styleMap = new Map(styles.map((style) => [style.key, style]));
+  const styleMap = mapByKey(styles);
   for (const style of styles) {
     const children = style.childKeys
       .map((childKey) => styleMap.get(childKey))
@@ -72,6 +62,32 @@ function attachStyleHierarchy(styles: ResizeableStyle[]): void {
     style.children = children;
     style.parent = style.parentKey ? styleMap.get(style.parentKey) ?? null : null;
   }
+}
+
+/**
+ * Constructs an array of ResizeableStyle objects by mapping definitions to 
+ * their current state and update logic.
+ * 
+ * @param defs - Metadata definitions for each ResizeableStyle.
+ * @param values - A mutable working copy of the current style values.
+ * @param onSet - Optional callback to sync changes back to external state (e.g., React).
+ * @returns An array of `ResizeableStyle` objects with hierarchical relationships attached.
+ */
+export function buildResizeableStyles(
+  defs: ResizeableStyleDefinition[],
+  values: StyleValues,
+  onSet: (key: string, value: number) => void = () => {},
+): ResizeableStyle[] {
+  const styles: ResizeableStyle[] = defs.map((def) => ({
+    ...def,
+    getCurrentValue: () => values[def.key] ?? def.defaultValue,
+    setCurrentValue: (value: number) => {
+      values[def.key] = value;
+      onSet(def.key, value);
+    },
+  }));
+  attachStyleHierarchy(styles);
+  return styles;
 }
 
 /** Build a read-only snapshot of ResizeableStyle objects for CSS var computation. */
@@ -217,10 +233,8 @@ export function makeFontReducer(
  * Try to shrink a style by one step. If it's at its children's lower bound,
  * recursively try shrinking the biggest child first.
  */
-function tryShrinkRecursive(key: string, allStyles: ResizeableStyle[], depth = 0): boolean {
+function tryShrinkRecursive(style: ResizeableStyle, depth = 0): boolean {
   if (depth > 50) return false;
-  const style = findStyle(allStyles, key);
-  if (!style) return false;
   if (style.getCurrentValue() <= style.minValue) return false;
 
   const children = style.children ?? [];
@@ -240,9 +254,9 @@ function tryShrinkRecursive(key: string, allStyles: ResizeableStyle[], depth = 0
   // At children's lower bound — try shrinking biggest child first
   const sortedChildren = [...children].sort((a, b) => b.getCurrentValue() - a.getCurrentValue());
   for (const child of sortedChildren) {
-    if (tryShrinkRecursive(child.key, allStyles, depth + 1)) {
+    if (tryShrinkRecursive(child, depth + 1)) {
       // Child was shrunk, retry self
-      return tryShrinkRecursive(key, allStyles, depth + 1);
+      return tryShrinkRecursive(style, depth + 1);
     }
   }
 
@@ -261,40 +275,22 @@ function getFontKeyForElement(el: HTMLElement): string | null {
 // ── Hierarchy-respecting UI controls ─────────────────────────────────────
 
 /** When shrinking a node, cascade down to children if they exceed the new value. */
-export function cascadeDown(
-  key: string,
-  newValue: number,
-  values: StyleValues,
-  defs: ResizeableStyleDefinition[],
-): void {
-  values[key] = newValue;
-  const def = defs.find(d => d.key === key);
-  if (!def) return;
-  for (const childKey of def.childKeys) {
-    const childDef = defs.find(d => d.key === childKey);
-    if (!childDef) continue;
-    const childValue = values[childKey] ?? childDef.defaultValue;
-    if (childValue > newValue) {
-      cascadeDown(childKey, newValue, values, defs);
+export function cascadeDown(style: ResizeableStyle, newValue: number): void {
+  style.setCurrentValue(newValue);
+  for (const child of style.children ?? []) {
+    if (child.getCurrentValue() > newValue) {
+      cascadeDown(child, newValue);
     }
   }
 }
 
 /** When growing a node, cascade up to parent if parent is smaller. */
-export function cascadeUp(
-  key: string,
-  newValue: number,
-  values: StyleValues,
-  defs: ResizeableStyleDefinition[],
-): void {
-  values[key] = newValue;
-  const def = defs.find(d => d.key === key);
-  if (!def || !def.parentKey) return;
-  const parentDef = defs.find(d => d.key === def.parentKey);
-  if (!parentDef) return;
-  const parentValue = values[parentDef.key] ?? parentDef.defaultValue;
-  if (newValue > parentValue) {
-    cascadeUp(parentDef.key, newValue, values, defs);
+export function cascadeUp(style: ResizeableStyle, newValue: number): void {
+  style.setCurrentValue(newValue);
+  const parent = style.parent;
+  if (!parent) return;
+  if (newValue > parent.getCurrentValue()) {
+    cascadeUp(parent, newValue);
   }
 }
 
@@ -305,16 +301,12 @@ export function cascadeUp(
  * Both pages share the same FitVariables.
  *
  * @param pageElements - References to the rendered page divs (1 or 2 elements)
- * @param styleDefinitions - Ordered definitions describing adjustable knobs.
- * @param styleValues - Current values from React state (copied before fitting).
- * @param setStyleValues - Setter for updating the UI state after each adjustment.
+ * @param styles - Prebuilt ResizeableStyle instances that mutate the provided values.
  * @param waitForRenderReady - Promise that resolves once the layout has rendered the latest vars.
  */
 export async function fitContentToPage(
   pageElements: HTMLElement[],
-  styleDefinitions: ResizeableStyleDefinition[],
-  styleValues: StyleValues,
-  setStyleValues: StyleValuesSetter,
+  styles: ResizeableStyle[],
   waitForRenderReady: () => Promise<void>,
 ): Promise<FitResult> {
   if (pageElements.length === 0) {
@@ -322,19 +314,8 @@ export async function fitContentToPage(
   }
 
   console.log('starting fitting\n');
-
-  const workingValues: StyleValues = { ...styleValues };
-
-  const styles: ResizeableStyle[] = styleDefinitions.map((def) => ({
-    ...def,
-    getCurrentValue: () => workingValues[def.key] ?? def.defaultValue,
-    setCurrentValue: (value: number) => {
-      workingValues[def.key] = value;
-      setStyleValues({ ...workingValues });
-    },
-  }));
-
   attachStyleHierarchy(styles);
+  const styleMap = mapByKey(styles);
 
   const phaseLog: string[] = [];
   let totalTrials = 0;
@@ -407,7 +388,12 @@ export async function fitContentToPage(
       break;
     }
 
-    const shrunk = tryShrinkRecursive(fontKey, styles);
+    const startStyle = styleMap.get(fontKey);
+    if (!startStyle) {
+      phaseLog.push(`⚠️ Cannot find style for font key ${fontKey}.`);
+      break;
+    }
+    const shrunk = tryShrinkRecursive(startStyle);
     if (!shrunk) {
       phaseLog.push(`⚠️ Cannot shrink ${fontKey} further for one-line overflow.`);
       break;

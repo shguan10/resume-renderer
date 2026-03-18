@@ -13,6 +13,7 @@ import {
   buildStyleSnapshotFromValues,
   cascadeDown,
   cascadeUp,
+  buildResizeableStyles,
   type StyleValues,
 } from '@/app/utils/fittingAlgorithm';
 import { buildXmlStyleDefinitions } from '@/app/utils/xmlFitStyles';
@@ -68,6 +69,12 @@ export function MarkdownEditorView() {
   );
 
   const [styleValues, setStyleValues] = useState<StyleValues>(() => defaultStyleValues);
+
+  const workingValues = { ...styleValues }; // local copy
+  const fittingStyles = buildResizeableStyles(styleDefinitions, workingValues, (key, newValue) => {
+    workingValues[key] = newValue;
+    setStyleValues({ ...workingValues });
+  });
 
   // Reset style values when input mode changes
   useEffect(() => {
@@ -161,9 +168,7 @@ export function MarkdownEditorView() {
       try {
         const fitResult = await fitContentToPage(
           pageElements,
-          styleDefinitions,
-          styleValues,
-          setStyleValues,
+          fittingStyles,
           waitForRenderReady,
         );
         toast.info('Fitting Report', { description: fitResult.report, duration: 5000 });
@@ -208,23 +213,17 @@ export function MarkdownEditorView() {
   // Hierarchy-respecting style value change
   const handleStyleValueChange = useCallback(
     (styleKey: string, value: number) => {
-      setStyleValues((prev) => {
-        const next = { ...prev };
-        const def = styleDefinitions.find((d) => d.key === styleKey);
-        if (!def) {
-          next[styleKey] = value;
-          return next;
-        }
-        const oldValue = prev[styleKey] ?? def.defaultValue;
-        if (value < oldValue) {
-          cascadeDown(styleKey, value, next, styleDefinitions);
-        } else if (value > oldValue) {
-          cascadeUp(styleKey, value, next, styleDefinitions);
-        } else {
-          next[styleKey] = value;
-        }
-        return next;
-      });
+      const style = fittingStyles.find((s) => s.key === styleKey);
+      if(!style) return;
+
+      const oldValue = style.getCurrentValue();
+      if (value < oldValue) {
+        cascadeDown(style, value);
+      } else if (value > oldValue) {
+        cascadeUp(style, value);
+      } else {
+        style.setCurrentValue(value);
+      }
     },
     [styleDefinitions],
   );
