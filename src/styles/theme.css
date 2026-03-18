@@ -761,7 +761,17 @@
     font-size: var(--rv-entry-header-font, 10pt);
     display: flex;
     justify-content: space-between;
+    flex-direction: column; 
     line-height: var(--rv-line-height, 1.3);
+  }
+
+  .rv-entry-header-line {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
   }
 
   .resume-xml .rv-entry-header-right {
@@ -805,10 +815,7 @@
 
   /* Format tag styles */
   .rv-one-line {
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    display: block;
+    display: inline;
   }
 
   .rv-align-left { text-align: left; }

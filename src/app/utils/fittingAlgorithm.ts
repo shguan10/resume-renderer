@@ -1,5 +1,3 @@
-import type { Dispatch, SetStateAction } from 'react';
-
 /**
  * Configurable Multi-Variable Fitting Algorithm
  *
@@ -10,9 +8,9 @@ import type { Dispatch, SetStateAction } from 'react';
  */
 
 const PAGE_HEIGHT_PX = 1056; // 11in × 96dpi
+const PAGE_WIDTH_PX = 816;
 
 export type StyleValues = Record<string, number>;
-export type StyleValuesSetter = Dispatch<SetStateAction<StyleValues>>;
 
 // ── Types ────────────────────────────────────────────────────────────────
 
@@ -22,122 +20,86 @@ export type NextValueGetter = IterableIterator<number>;
 export interface ResizeableStyleDefinition {
   key: string;
   defaultValue: number;
-  /** Given current value + ref to all styles, return whether there's still room to adjust. */
-  hasRoomToChange: (currentValue: number, allStyles: ResizeableStyle[]) => boolean;
-  /** Return a NextValueGetter producing values to try, or undefined if no room. */
-  getStageValues: (currentValue: number, allStyles: ResizeableStyle[]) => NextValueGetter | undefined;
-  /** Human-readable description */
+  minValue: number;
+  parentKey: string | null;
+  childKeys: string[];
   description: string;
+  /** Given current value + resolved children, return whether there's still room to adjust. */
+  hasRoomToChange: (currentValue: number, children: ResizeableStyle[]) => boolean;
+  /** Return a NextValueGetter producing values to try, or undefined if no room. */
+  getStageValues: (currentValue: number, children: ResizeableStyle[]) => NextValueGetter | undefined;
 }
 
 export interface ResizeableStyle extends ResizeableStyleDefinition {
   getCurrentValue: () => number;
   setCurrentValue: (value: number) => void;
-}
-
-export interface FitVariables {
-  h1FontPt: number;
-  h2FontPt: number;
-  h3FontPt: number;
-  paragraphFontPt: number;
-  listFontPt: number;
-  sectionGapPt: number;
-  entryGapPt: number;
-  listGapPt: number;
-  pageMarginPx: number;
-  paragraphGapPt: number;
-  listPaddingPt: number;
-  hrGapPt: number;
-  h1BottomPt: number;
-  h2BottomPt: number;
-  lineHeightRel: number;
-  letterSpacingPt: number;
-  wordSpacingPt: number;
-  h3TopPt: number;
-  entryHeaderGapPt: number;
-  listIndentPt: number;
+  parent?: ResizeableStyle | null; // the resolved parent
+  children?: ResizeableStyle[]; // the resolved children
 }
 
 export interface FitResult {
-  variables?: FitVariables;
   didAdjust: boolean;
   report: string;
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────────
-
-function findStyle(styles: ResizeableStyle[], key: string): ResizeableStyle | undefined {
-  return styles.find((s) => s.key === key);
+function mapByKey<T extends { key: string }>(items: T[]): Map<string, T> {
+  return new Map(items.map((item) => [item.key, item]));
 }
 
-function getVal(styles: ResizeableStyle[], key: string): number {
-  return findStyle(styles, key)?.getCurrentValue() ?? 0;
+/**
+ * Resolves and injects parent/child object references into an array of styles.
+ *
+ * This function performs an in-place mutation of the `styles` objects,
+ * transforming string-based keys (`parentKey`, `childKeys`) into direct
+ * cached references (`parent`, `children`).
+ */
+function attachStyleHierarchy(styles: ResizeableStyle[]): void {
+  const styleMap = mapByKey(styles);
+  for (const style of styles) {
+    const children = style.childKeys
+      .map((childKey) => styleMap.get(childKey))
+      .filter((s): s is ResizeableStyle => s !== undefined);
+    style.children = children;
+    style.parent = style.parentKey ? styleMap.get(style.parentKey) ?? null : null;
+  }
 }
 
-/** Build FitVariables from the current ResizeableStyle values + derived header fonts. */
-export function buildVarsFromStyles(styles: ResizeableStyle[]): FitVariables {
-  const paragraph = getVal(styles, 'paragraphFont');
-  return {
-    h1FontPt: getVal(styles, 'h1Font'),
-    h2FontPt: getVal(styles, 'h2Font'),
-    h3FontPt: getVal(styles, 'h3Font'),
-    paragraphFontPt: paragraph,
-    listFontPt: getVal(styles, 'listFont'),
-    sectionGapPt: getVal(styles, 'sectionGap'),
-    entryGapPt: getVal(styles, 'entryGap'),
-    listGapPt: getVal(styles, 'listGap'),
-    pageMarginPx: getVal(styles, 'pageMargin'),
-    paragraphGapPt: getVal(styles, 'paragraphGap'),
-    listPaddingPt: getVal(styles, 'listPadding'),
-    hrGapPt: getVal(styles, 'hrGap'),
-    h1BottomPt: getVal(styles, 'h1Bottom'),
-    h2BottomPt: getVal(styles, 'h2Bottom'),
-    lineHeightRel: getVal(styles, 'lineHeight'),
-    letterSpacingPt: getVal(styles, 'letterSpacing'),
-    wordSpacingPt: getVal(styles, 'wordSpacing'),
-    h3TopPt: getVal(styles, 'h3Top'),
-    entryHeaderGapPt: getVal(styles, 'entryHeaderGap'),
-    listIndentPt: getVal(styles, 'listIndent'),
-  };
+/**
+ * Constructs an array of ResizeableStyle objects by mapping definitions to 
+ * their current state and update logic.
+ * 
+ * @param defs - Metadata definitions for each ResizeableStyle.
+ * @param values - A mutable working copy of the current style values.
+ * @param onSet - Optional callback to sync changes back to external state (e.g., React).
+ * @returns An array of `ResizeableStyle` objects with hierarchical relationships attached.
+ */
+export function buildResizeableStyles(
+  defs: ResizeableStyleDefinition[],
+  values: StyleValues,
+  onSet: (key: string, value: number) => void = () => {},
+): ResizeableStyle[] {
+  const styles: ResizeableStyle[] = defs.map((def) => ({
+    ...def,
+    getCurrentValue: () => values[def.key] ?? def.defaultValue,
+    setCurrentValue: (value: number) => {
+      values[def.key] = value;
+      onSet(def.key, value);
+    },
+  }));
+  attachStyleHierarchy(styles);
+  return styles;
 }
 
-/** Convert FitVariables to CSS custom properties (including padding). */
-export function buildMarkdownCssVars(vars: FitVariables): Record<string, string> {
-  return {
-    '--rv-h1-font': `${vars.h1FontPt}pt`,
-    '--rv-h2-font': `${vars.h2FontPt}pt`,
-    '--rv-h3-font': `${vars.h3FontPt}pt`,
-    '--rv-paragraph-font': `${vars.paragraphFontPt}pt`,
-    '--rv-list-font': `${vars.listFontPt}pt`,
-    '--rv-section-gap': `${vars.sectionGapPt}pt`,
-    '--rv-entry-gap': `${vars.entryGapPt}pt`,
-    '--rv-list-gap': `${vars.listGapPt}pt`,
-    '--rv-paragraph-gap': `${vars.paragraphGapPt}pt`,
-    '--rv-list-padding': `${vars.listPaddingPt}pt`,
-    '--rv-list-indent': `${vars.listIndentPt}pt`,
-    '--rv-hr-gap': `${vars.hrGapPt}pt`,
-    '--rv-h1-bottom': `${vars.h1BottomPt}pt`,
-    '--rv-h2-bottom': `${vars.h2BottomPt}pt`,
-    '--rv-line-height': `${vars.lineHeightRel}`,
-    '--rv-letter-spacing': `${vars.letterSpacingPt}pt`,
-    '--rv-word-spacing': `${vars.wordSpacingPt}pt`,
-    '--rv-h3-top': `${vars.h3TopPt}pt`,
-    '--rv-entry-header-gap': `${vars.entryHeaderGapPt}pt`,
-    padding: `${vars.pageMarginPx}px`,
-  };
-}
-
-// This function is merely a helper for memoizing fitVars
+/** Build a read-only snapshot of ResizeableStyle objects for CSS var computation. */
 export function buildStyleSnapshotFromValues(
   defs: ResizeableStyleDefinition[],
   values: StyleValues,
 ): ResizeableStyle[] {
   return defs.map((def) => ({
     ...def,
-    getCurrentValue: ()=> (values[def.key] ?? def.defaultValue),
-    setCurrentValue: () => {
-      /* snapshot helper; no-op */
-    },
+    getCurrentValue: () => values[def.key] ?? def.defaultValue,
+    setCurrentValue: () => { /* snapshot helper; no-op */ },
   }));
 }
 
@@ -147,35 +109,42 @@ function measureHeight(el: HTMLElement): number {
   return el.scrollHeight;
 }
 
-/** Check that ALL page elements fit within PAGE_HEIGHT_PX. */
+/** Check that ALL page elements fit within PAGE_HEIGHT_PX. Returns max height. */
 function allPagesFit(pageElements: HTMLElement[]): number {
-  return pageElements.reduce((maxHeight, el) => {
-    return Math.max(maxHeight, measureHeight(el));
-  }, 0);
+  return pageElements.reduce((maxHeight, el) => Math.max(maxHeight, measureHeight(el)), 0);
 }
 
-const MIN_GAP_PT = 2 * (72 / 96); // ~1.5pt
+// ── Reducer factories ────────────────────────────────────────────────────
 
 export function makeGapReducer(
   key: string,
   description: string,
   defaultVal: number,
-  minVal: number = MIN_GAP_PT,
-  step: number = 0.95, // multiplicative factor
-  stageLimit: number = 2,
+  minVal: number,
+  step: number,
+  stageLimit: number,
+  childKeys: string[] = [],
+  parentKey: string | null = null,
 ): ResizeableStyleDefinition {
   return {
     key,
     defaultValue: defaultVal,
+    minValue: minVal,
+    parentKey,
+    childKeys,
     description,
-    hasRoomToChange: (cur) => cur > minVal,
-    getStageValues: (cur) => {
-      if (cur <= minVal) return undefined;
+    hasRoomToChange: (cur, children) => {
+      const floor = children.reduce((acc, c) => Math.max(acc, c.getCurrentValue()), minVal);
+      return cur > floor;
+    },
+    getStageValues: (cur, children) => {
+      const floor = children.reduce((acc, c) => Math.max(acc, c.getCurrentValue()), minVal);
+      if (cur <= floor) return undefined;
       let stageNumber = stageLimit;
       function* stageValues() {
         let value = cur;
-        while (value > minVal && stageNumber-- > 0) {
-          value = Math.max(value * step, minVal);
+        while (value > floor && stageNumber-- > 0) {
+          value = Math.max(value * step, floor);
           yield value;
         }
       }
@@ -190,20 +159,29 @@ export function makeLinearReducer(
   defaultVal: number,
   minVal: number,
   step: number,
-  stageLimit: number = 2,
+  stageLimit: number,
+  childKeys: string[] = [],
+  parentKey: string | null = null,
 ): ResizeableStyleDefinition {
   return {
     key,
     defaultValue: defaultVal,
+    minValue: minVal,
+    parentKey,
+    childKeys,
     description,
-    hasRoomToChange: (cur) => cur > minVal,
-    getStageValues: (cur) => {
-      if (cur <= minVal) return undefined;
+    hasRoomToChange: (cur, children) => {
+      const floor = children.reduce((acc, c) => Math.max(acc, c.getCurrentValue()), minVal);
+      return cur > floor;
+    },
+    getStageValues: (cur, children) => {
+      const floor = children.reduce((acc, c) => Math.max(acc, c.getCurrentValue()), minVal);
+      if (cur <= floor) return undefined;
       let stageNumber = stageLimit;
       function* stageValues() {
         let value = cur;
-        while (value > minVal && stageNumber-- > 0) {
-          value = Math.max(value - step, minVal);
+        while (value > floor && stageNumber-- > 0) {
+          value = Math.max(value - step, floor);
           yield value;
         }
       }
@@ -212,35 +190,36 @@ export function makeLinearReducer(
   };
 }
 
-/** Font reducer that respects hierarchy: listFont <= paragraphFont <= h3Font, etc. */
+/** Font reducer that respects hierarchy via children. */
 export function makeFontReducer(
   key: string,
   description: string,
   defaultVal: number,
   minVal: number,
   step: number,
-  lowerBoundKeys: string[],
+  childKeys: string[],
   stageLimit: number = 5,
+  parentKey: string | null = null,
 ): ResizeableStyleDefinition {
   return {
     key,
     defaultValue: defaultVal,
+    minValue: minVal,
+    parentKey,
+    childKeys,
     description,
-    hasRoomToChange: (cur) => cur > minVal,
-    getStageValues: (cur, allStyles) => {
-      if (cur <= minVal) return undefined;
-      const biggestChild = lowerBoundKeys.reduce((acc, k) => {
-        const s = findStyle(allStyles, k);
-        return s ? Math.max(acc, s.getCurrentValue()) : acc;
-      }, minVal);
-
-      const effectiveMin = Math.max(biggestChild, 0);
-      if (cur <= effectiveMin) return undefined;
+    hasRoomToChange: (cur, children) => {
+      const floor = children.reduce((acc, c) => Math.max(acc, c.getCurrentValue()), minVal);
+      return cur > floor;
+    },
+    getStageValues: (cur, children) => {
+      const floor = children.reduce((acc, c) => Math.max(acc, c.getCurrentValue()), minVal);
+      if (cur <= floor) return undefined;
       let stageNumber = stageLimit;
       function* stageValues() {
         let value = cur;
-        while (value > effectiveMin && stageNumber-- > 0) {
-          value = Math.max(value - step, effectiveMin);
+        while (value > floor && stageNumber-- > 0) {
+          value = Math.max(value - step, floor);
           yield value;
         }
       }
@@ -249,35 +228,71 @@ export function makeFontReducer(
   };
 }
 
-/** Build the default ordered list of ResizeableStyleDefinitions. Order determines priority. */
-export function buildDefaultStyleDefinitions(): ResizeableStyleDefinition[] {
-  return [
-    // Phase 1: Spacing compression (highest priority — try first)
-    makeGapReducer('sectionGap', 'Section gap (margin above H2)', 10, MIN_GAP_PT),
-    makeGapReducer('entryGap', 'Entry gap (margin between jobs)', 6, MIN_GAP_PT),
-    makeGapReducer('entryHeaderGap', 'Entry header gap (H2→H3)', 6, MIN_GAP_PT),
-    makeGapReducer('h3Top', 'H3 top margin', 6, MIN_GAP_PT),
-    makeGapReducer('paragraphGap', 'Paragraph gap', 6, MIN_GAP_PT),
-    makeGapReducer('listGap', 'List item gap', 1, 0),
-    makeGapReducer('hrGap', 'Horizontal rule gap', 8, MIN_GAP_PT),
-    makeGapReducer('h1Bottom', 'H1 bottom margin', 4, MIN_GAP_PT),
-    makeGapReducer('h2Bottom', 'H2 bottom margin', 4, MIN_GAP_PT),
-    makeGapReducer('listPadding', 'List padding', 16, 8),
-    makeGapReducer('listIndent', 'UL indent', 16, 8),
-    makeLinearReducer('lineHeight', 'Line height ratio', 1.4, 1.0, 0.05),
-    makeLinearReducer('letterSpacing', 'Letter spacing (pt)', 0, -0.2, 0.02),
-    makeLinearReducer('wordSpacing', 'Word spacing (pt)', 0, -0.4, 0.1),
+// ── Recursive shrink for width fitting ───────────────────────────────────
 
-    // Phase 2: Font compression
-    makeFontReducer('listFont', 'List item font (pt)', 12, 4, 0.1, []),
-    makeFontReducer('paragraphFont', 'Paragraph font (pt)', 16, 4, 0.1, ['listFont']),
-    makeFontReducer('h3Font', 'H3 font (pt)', 18, 4, 0.1, ['paragraphFont']),
-    makeFontReducer('h2Font', 'H2 font (pt)', 20, 4, 0.1, ['h3Font']),
-    makeFontReducer('h1Font', 'H1 font (pt)', 24, 4, 0.1, ['h2Font']),
+/**
+ * Try to shrink a style by one step. If it's at its children's lower bound,
+ * recursively try shrinking the biggest child first.
+ */
+function tryShrinkRecursive(style: ResizeableStyle, depth = 0): boolean {
+  if (depth > 50) return false;
+  if (style.getCurrentValue() <= style.minValue) return false;
 
-    // Phase 3: Margin squeeze (last resort)
-    makeLinearReducer('pageMargin', 'Page margin (px)', 48, 28.5, 2),
-  ];
+  const children = style.children ?? [];
+
+  // Try direct shrink
+  if (style.hasRoomToChange(style.getCurrentValue(), children)) {
+    const gen = style.getStageValues(style.getCurrentValue(), children);
+    if (gen) {
+      const next = gen.next();
+      if (!next.done) {
+        style.setCurrentValue(next.value);
+        return true;
+      }
+    }
+  }
+
+  // At children's lower bound — try shrinking biggest child first
+  const sortedChildren = [...children].sort((a, b) => b.getCurrentValue() - a.getCurrentValue());
+  for (const child of sortedChildren) {
+    if (tryShrinkRecursive(child, depth + 1)) {
+      // Child was shrunk, retry self
+      return tryShrinkRecursive(style, depth + 1);
+    }
+  }
+
+  return false;
+}
+
+/** Determine which font knob controls a given DOM element. */
+function getFontKeyForElement(el: HTMLElement): string | null {
+  if (el.closest('.rv-entry-header')) return 'entry-header-font';
+  if (el.closest('.rv-skill')) return 'skill-font';
+  if (el.closest('.rv-name-details')) return 'name-details-font';
+  if (el.closest('.rv-name')) return 'name-font';
+  return null;
+}
+
+// ── Hierarchy-respecting UI controls ─────────────────────────────────────
+
+/** When shrinking a node, cascade down to children if they exceed the new value. */
+export function cascadeDown(style: ResizeableStyle, newValue: number): void {
+  style.setCurrentValue(newValue);
+  for (const child of style.children ?? []) {
+    if (child.getCurrentValue() > newValue) {
+      cascadeDown(child, newValue);
+    }
+  }
+}
+
+/** When growing a node, cascade up to parent if parent is smaller. */
+export function cascadeUp(style: ResizeableStyle, newValue: number): void {
+  style.setCurrentValue(newValue);
+  const parent = style.parent;
+  if (!parent) return;
+  if (newValue > parent.getCurrentValue()) {
+    cascadeUp(parent, newValue);
+  }
 }
 
 // ── Core fitting loop ────────────────────────────────────────────────────
@@ -287,113 +302,130 @@ export function buildDefaultStyleDefinitions(): ResizeableStyleDefinition[] {
  * Both pages share the same FitVariables.
  *
  * @param pageElements - References to the rendered page divs (1 or 2 elements)
- * @param styleDefinitions - Ordered definitions describing adjustable knobs.
- * @param styleValues - Current values from React state (copied before fitting).
- * @param setStyleValues - Setter for updating the UI state after each adjustment.
+ * @param styles - Prebuilt ResizeableStyle instances that mutate the provided values.
  * @param waitForRenderReady - Promise that resolves once the layout has rendered the latest vars.
  */
 export async function fitContentToPage(
   pageElements: HTMLElement[],
-  styleDefinitions: ResizeableStyleDefinition[],
-  styleValues: StyleValues,
-  setStyleValues: StyleValuesSetter,
+  styles: ResizeableStyle[],
   waitForRenderReady: () => Promise<void>,
 ): Promise<FitResult> {
   if (pageElements.length === 0) {
-    return {
-      didAdjust: false,
-      report: 'No page elements provided.',
-    };
+    return { didAdjust: false, report: 'No page elements provided.' };
   }
 
-  console.log(`starting fitting\n`);
+  console.log('starting fitting\n');
+  attachStyleHierarchy(styles);
+  const styleMap = mapByKey(styles);
 
-  const workingValues: StyleValues = { ...styleValues };
-
-  const styles: ResizeableStyle[] =
-    styleDefinitions.map((def) => ({
-      ...def,
-      getCurrentValue: () => (workingValues[def.key] ?? def.defaultValue),
-      setCurrentValue: (value: number) => {
-        workingValues[def.key] = value; // updates the local copy
-        setStyleValues({ ...workingValues }); // notify the UI
-      },
-    }));
-  
   const phaseLog: string[] = [];
   let totalTrials = 0;
   const MAX_TOTAL_TRIALS = 500;
 
-  async function applyAndCheckFit(): Promise<number> {
-    await waitForRenderReady();
+  async function applyAndCheckFit(skipWait = false): Promise<number> {
+    if (!skipWait) {
+      await waitForRenderReady();
+    }
     return allPagesFit(pageElements);
   }
 
+  // ── Phase 1: Height fitting ──────────────────────────────────────────
   const initialHeight = await applyAndCheckFit();
   console.log(`initial height ${initialHeight}, target height ${PAGE_HEIGHT_PX}\n`);
-  if (initialHeight <= PAGE_HEIGHT_PX) {
-    return {
-      variables: buildVarsFromStyles(styles),
-      didAdjust: false,
-      report: 'Content fits perfectly — no adjustments needed.',
-    };
+
+  if (initialHeight > PAGE_HEIGHT_PX) {
+    outerLoop:
+    while (totalTrials < MAX_TOTAL_TRIALS) {
+      const anyCanChange = styles.some((style) => {
+        const children = style.children ?? [];
+        return style.hasRoomToChange(style.getCurrentValue(), children);
+      });
+      if (!anyCanChange) {
+        phaseLog.push('⚠️ All styles exhausted — content still overflows.');
+        break;
+      }
+
+      for (const style of styles) {
+        const children = style.children ?? [];
+        if (!style.hasRoomToChange(style.getCurrentValue(), children)) continue;
+        const valueGenerator = style.getStageValues(style.getCurrentValue(), children);
+        if (valueGenerator === undefined) continue;
+
+        for (const valueToTry of valueGenerator) {
+          totalTrials++;
+          if (totalTrials > MAX_TOTAL_TRIALS) {
+            phaseLog.push(`Reached max trial count (${MAX_TOTAL_TRIALS}).`);
+            break outerLoop;
+          }
+          console.log(`Trying ${style.description} at ${valueToTry}`);
+          style.setCurrentValue(valueToTry);
+          console.log(`awaiting height check, trial: ${totalTrials}`);
+          const trialHeight = await applyAndCheckFit();
+          if (trialHeight <= PAGE_HEIGHT_PX) {
+            phaseLog.push(
+              `Height fit after ${totalTrials} trials. Last: ${style.description} → ${valueToTry.toFixed(2)}`
+            );
+            break outerLoop; // will fall through to width fitting
+          }
+        }
+      }
+    }
   }
 
-  outerLoop:
-  while (totalTrials < MAX_TOTAL_TRIALS) {
-    const styleCanChange = styles.map((style) => 
-      style.hasRoomToChange(style.getCurrentValue(), styles)
+  // ── Phase 2: Width fitting for FormatOneLine ─────────────────────────
+  let widthTrials = 0;
+  const MAX_WIDTH_TRIALS = 200;
+
+  while (widthTrials < MAX_WIDTH_TRIALS) {
+    if (widthTrials > 0) {
+      console.log(`awaiting width trial ${widthTrials}`);
+      await waitForRenderReady();
+    }
+    const overflowing = pageElements.flatMap(page =>
+      Array.from(page.querySelectorAll<HTMLElement>('.rv-one-line'))
+        .filter(el => el.scrollWidth > PAGE_WIDTH_PX)
     );
-    const anyCanChange = styleCanChange.some(Boolean);
-    if (!anyCanChange) {
-      phaseLog.push('⚠️ All styles exhausted — content still overflows.');
+    if (overflowing.length === 0) break;
+
+    const el = overflowing[0];
+    if (!el) break;
+    const fontKey = getFontKeyForElement(el);
+    if (!fontKey) {
+      phaseLog.push('⚠️ Cannot determine font knob for overflowing one-line element.');
       break;
     }
 
-    for (const style of styles) {
-      // we explicitly check again since the lower bounds might have changed
-      if (!style.hasRoomToChange(style.getCurrentValue(), styles)) continue;
-      const valueGenerator = style.getStageValues(style.getCurrentValue(), styles);
-
-      if (valueGenerator === undefined) {
-        continue;
-      }
-
-      for (const valueToTry of valueGenerator) {
-        totalTrials++;
-        console.log(`starting trial ${totalTrials}\n`);
-
-        if (totalTrials > MAX_TOTAL_TRIALS) {
-          phaseLog.push(`Reached max trial count (${MAX_TOTAL_TRIALS}).`);
-          break outerLoop;
-        }
-        console.log(`Trying ${style.description} at ${valueToTry}`);
-        style.setCurrentValue(valueToTry);
-        const trialHeight = await applyAndCheckFit();
-        console.log(`trial ${totalTrials} height ${trialHeight}, target height ${PAGE_HEIGHT_PX}\n`);
-        if (trialHeight <= PAGE_HEIGHT_PX) {
-          phaseLog.push(
-            `Fit achieved after ${totalTrials} trials. Last adjusted: ${style.description} → ${valueToTry.toFixed(2)}`
-          );
-          return {
-            variables: buildVarsFromStyles(styles),
-            didAdjust: true,
-            report: phaseLog.join(' '),
-          };
-        }
-      }
+    const startStyle = styleMap.get(fontKey);
+    if (!startStyle) {
+      phaseLog.push(`⚠️ Cannot find style for font key ${fontKey}.`);
+      break;
     }
+    const shrunk = tryShrinkRecursive(startStyle);
+    if (!shrunk) {
+      phaseLog.push(`⚠️ Cannot shrink ${fontKey} further for one-line overflow.`);
+      break;
+    }
+    widthTrials++;
+    totalTrials++;
   }
 
-  console.log("finished.\n");
-  const finalVars = buildVarsFromStyles(styles);
-  if (!phaseLog.some((l) => l.includes('⚠️'))) {
+  if (widthTrials > 0) {
+    phaseLog.push(`Width fit: ${widthTrials} adjustments for one-line overflow.`);
+  }
+
+  // Check final height after width adjustments
+  console.log("awaiting final height check\n");
+  const finalHeight = await applyAndCheckFit(true);
+  const didAdjust = totalTrials > 0;
+
+  if (!didAdjust && initialHeight <= PAGE_HEIGHT_PX) {
+    return { didAdjust: false, report: 'Content fits perfectly — no adjustments needed.' };
+  }
+
+  if (finalHeight > PAGE_HEIGHT_PX && !phaseLog.some(l => l.includes('⚠️'))) {
     phaseLog.push('⚠️ Content still overflows after all adjustments. Consider removing content.');
   }
 
-  return {
-    variables: finalVars,
-    didAdjust: true,
-    report: phaseLog.join(' '),
-  };
+  console.log('finished.\n');
+  return { didAdjust, report: phaseLog.join(' ') };
 }
