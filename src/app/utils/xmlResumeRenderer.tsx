@@ -21,6 +21,10 @@ interface NameInfo {
 
 type InlineChild = ResumeNode | string;
 
+function isResumeNode(child: InlineChild): child is ResumeNode {
+  return typeof child !== 'string';
+}
+
 function renderInlineChildren(children: InlineChild[]): ReactNode {
   if (children.length === 0) return null;
   const nodes: ReactNode[] = [];
@@ -63,18 +67,75 @@ function renderInline(node: InlineChild): ReactNode {
     }
   }
 
-  return children;
+  const tag = node.tag.toLowerCase();
+  switch (tag) {
+    case 'strong':
+    case 'b':
+      return <strong>{children}</strong>;
+    case 'em':
+    case 'i':
+      return <em>{children}</em>;
+    case 'a': {
+      const href = node.attributes.href ?? node.attributes.HREF;
+      if (!href) return children;
+      return (
+        <a href={href} target="_blank" rel="noreferrer noopener">
+          {children}
+        </a>
+      );
+    }
+    default:
+      return children;
+  }
 }
 
 function extractNameInfo(root: ResumeNode): NameInfo {
   const ns = findChild(root, 'NameSection');
-  if (!ns) return { name: '', location: '', email: '', website: '' };
-  return {
-    name: getTextContent(findChild(ns, 'Name') ?? ''),
-    location: getTextContent(findChild(ns, 'Location') ?? ''),
-    email: getTextContent(findChild(ns, 'Email') ?? ''),
-    website: getTextContent(findChild(ns, 'Website') ?? ''),
-  };
+  if (ns) {
+    return {
+      name: getTextContent(findChild(ns, 'Name') ?? ''),
+      location: getTextContent(findChild(ns, 'Location') ?? ''),
+      email: getTextContent(findChild(ns, 'Email') ?? ''),
+      website: getTextContent(findChild(ns, 'Website') ?? ''),
+    };
+  }
+  return extractNameInfoFromHtml(root);
+}
+
+function extractNameInfoFromHtml(root: ResumeNode): NameInfo {
+  const info: NameInfo = { name: '', location: '', email: '', website: '' };
+  let seenH1 = false;
+  for (const child of root.children) {
+    if (typeof child === 'string') continue;
+    const tag = child.tag.toLowerCase();
+    if (tag === 'h1') {
+      info.name = getTextContent(child);
+      seenH1 = true;
+      continue;
+    }
+    if (seenH1 && tag === 'p') {
+      populateHtmlContactInfo(getTextContent(child), info);
+      break;
+    }
+  }
+  return info;
+}
+
+function populateHtmlContactInfo(text: string, info: NameInfo): void {
+  const parts = text.split('|').map((part) => part.trim()).filter(Boolean);
+  for (const part of parts) {
+    if (part.includes('@')) {
+      if (!info.email) info.email = part;
+      continue;
+    }
+    if (/https?:\/\//.test(part) || (part.match(/\.\w/) && !part.match(/^\d/))) {
+      if (!info.website) info.website = part;
+      continue;
+    }
+    if (!info.location) {
+      info.location = part;
+    }
+  }
 }
 
 function renderNameSection(ns: ResumeNode): ReactNode {
@@ -246,18 +307,53 @@ function renderSection(section: ResumeNode): ReactNode {
   );
 }
 
+function renderHtmlBlock(node: ResumeNode): ReactNode {
+  const tag = node.tag.toLowerCase();
+  if (tag === 'h1') return <h1>{renderInlineChildren(node.children)}</h1>;
+  if (tag === 'h2') return <h2>{renderInlineChildren(node.children)}</h2>;
+  if (tag === 'h3') return <h3>{renderInlineChildren(node.children)}</h3>;
+  if (tag === 'p') return <p>{renderInlineChildren(node.children)}</p>;
+  if (tag === 'li') return <li>{renderInlineChildren(node.children)}</li>;
+  if (tag === 'ul') {
+    const items = node.children.filter(isResumeNode);
+    if (items.length === 0) return null;
+    return (
+      <ul>
+        {items.map((item, index) => (
+          <Fragment key={`html-ul-${index}`}>{renderHtmlBlock(item)}</Fragment>
+        ))}
+      </ul>
+    );
+  }
+  const children: ReactNode[] = [];
+  node.children.forEach((child, index) => {
+    const rendered = typeof child === 'string' ? child : renderHtmlBlock(child);
+    if (rendered !== null) {
+      children.push(
+        <Fragment key={`html-block-${index}`}>{rendered}</Fragment>,
+      );
+    }
+  });
+  if (children.length === 0) return null;
+  return <div>{children}</div>;
+}
+
 function wrapPage(
   content: ReactNode,
   nameInfo: NameInfo,
   pageNum: number,
   totalPages: number,
 ): ReactNode {
+  const detailParts: string[] = [];
+  if (nameInfo.location) detailParts.push(nameInfo.location);
+  if (nameInfo.email) detailParts.push(nameInfo.email);
+  if (nameInfo.website) detailParts.push(nameInfo.website);
   return (
     <>
       <div className="rv-page-content">{content}</div>
       <div className="rv-page-footer">
-        <span>{nameInfo.name}</span>
-        <span>{nameInfo.email}</span>
+        {nameInfo.name && <span>{nameInfo.name}</span>}
+        {detailParts.length > 0 && <span>{detailParts.join(' | ')}</span>}
         <span>
           Page {pageNum} of {totalPages}
         </span>
@@ -266,12 +362,24 @@ function wrapPage(
   );
 }
 
+function hasSemanticStructure(root: ResumeNode): boolean {
+  return root.children.some((child) =>
+    typeof child !== 'string' && (child.tag === 'NameSection' || child.tag === 'ResumeSection'),
+  );
+}
+
 export function renderXmlResume(root: ResumeNode, pageLayout: '1' | '2'): XmlRenderedPage[] {
   const nameInfo = extractNameInfo(root);
   const pageContents: ReactNode[][] = [[]];
+  const useXmlStructure = hasSemanticStructure(root);
 
   for (const child of root.children) {
-    if (typeof child === 'string') continue;
+    if (typeof child === 'string') {
+      if (!useXmlStructure) {
+        pageContents[pageContents.length - 1]!.push(child);
+      }
+      continue;
+    }
     if (child.tag === 'FormatPageBreak') {
       if (pageLayout !== '1') {
         pageContents.push([]);
@@ -279,10 +387,17 @@ export function renderXmlResume(root: ResumeNode, pageLayout: '1' | '2'): XmlRen
       continue;
     }
     const currentPage = pageContents[pageContents.length - 1]!;
-    if (child.tag === 'NameSection') {
-      currentPage.push(renderNameSection(child));
-    } else if (child.tag === 'ResumeSection') {
-      currentPage.push(renderSection(child));
+    if (useXmlStructure) {
+      if (child.tag === 'NameSection') {
+        currentPage.push(renderNameSection(child));
+      } else if (child.tag === 'ResumeSection') {
+        currentPage.push(renderSection(child));
+      }
+      continue;
+    }
+    const htmlBlock = renderHtmlBlock(child);
+    if (htmlBlock) {
+      currentPage.push(htmlBlock);
     }
   }
 

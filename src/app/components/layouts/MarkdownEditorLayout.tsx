@@ -94,6 +94,8 @@ export function MarkdownEditorLayout({
     [pageCssVars, font],
   );
 
+  const previewClassName = `resume-page ${inputMode === 'xml' ? 'resume-xml' : 'resume-html'}`;
+
   const handleFitVarInput = useCallback(
     (key: string, raw: string) => {
       const num = parseFloat(raw);
@@ -277,7 +279,7 @@ export function MarkdownEditorLayout({
                   <div
                     key={index}
                     ref={(el) => setPageRef(index, el)}
-                    className="resume-page resume-xml"
+                    className={previewClassName}
                     style={pageStyle}
                   >
                     <div className="rv-xml-inner">{page.content}</div>

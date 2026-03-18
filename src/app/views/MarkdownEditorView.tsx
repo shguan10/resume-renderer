@@ -17,6 +17,7 @@ import {
   type StyleValues,
 } from '@/app/utils/fittingAlgorithm';
 import { buildXmlStyleDefinitions } from '@/app/utils/xmlFitStyles';
+import { buildHtmlStyleDefinitions, buildHtmlCssVars } from '@/app/utils/htmlFitStyles';
 import { parseResumeXml } from '@/app/utils/xmlResumeParser';
 import { parseHtmlToResumeNode } from '@/app/utils/htmlResumeParser';
 import { parseMarkdownToResumeNode } from '@/app/utils/mdResumeParser';
@@ -56,8 +57,13 @@ export function MarkdownEditorView() {
   const [showFitVariables, setShowFitVariables] = useState(false);
   const [dividerFraction, setDividerFraction] = useState(0.5);
 
-  // All modes use the same XML style definitions
-  const styleDefinitions = useMemo(() => buildXmlStyleDefinitions(), []);
+  const xmlStyleDefinitions = useMemo(() => buildXmlStyleDefinitions(), []);
+  const htmlStyleDefinitions = useMemo(() => buildHtmlStyleDefinitions(), []);
+  const useXmlStyles = inputMode === 'xml';
+  const styleDefinitions = useMemo(
+    () => (useXmlStyles ? xmlStyleDefinitions : htmlStyleDefinitions),
+    [useXmlStyles, xmlStyleDefinitions, htmlStyleDefinitions],
+  );
 
   const defaultStyleValues = useMemo(
     () =>
@@ -93,10 +99,10 @@ export function MarkdownEditorView() {
     [styleDefinitions],
   );
 
-  // Compute CSS vars for pages (always XML pipeline)
+  // Compute CSS vars for pages (mode-specific pipeline)
   const pageCssVars = useMemo<Record<string, string>>(
-    () => buildXmlCssVars(styleValues),
-    [styleValues],
+    () => (useXmlStyles ? buildXmlCssVars(styleValues) : buildHtmlCssVars(styleValues)),
+    [styleValues, useXmlStyles],
   );
 
   const resetStyleValues = useCallback(() => {
