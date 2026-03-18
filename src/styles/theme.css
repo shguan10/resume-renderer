@@ -827,6 +827,8 @@
     margin-bottom: 0;
     font-weight: 700;
     line-height: var(--rv-line-height, 1.3);
+    border-bottom: 1.5px solid currentColor;
+    padding-bottom: 4pt;
   }
 
   .resume-html h3 {
