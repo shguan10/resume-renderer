@@ -104,10 +104,12 @@ export function MarkdownEditorLayout({
 
   /** Determine step size for a given fit variable key */
   const stepForKey = (key: string): number => {
-    if (key === 'line-height' || key === 'lineHeight') return 0.05;
-    if (key.includes('letter') || key.includes('word')) return 0.02;
+    if (key === 'line-height') return 0.05;
     return 0.5;
   };
+
+  const inputModeLabel =
+    inputMode === 'xml' ? 'XML Input' : inputMode === 'html' ? 'HTML Input' : 'Markdown Input';
 
   return (
     <div className="h-screen w-full bg-background flex flex-col overflow-hidden font-sans">
@@ -124,6 +126,7 @@ export function MarkdownEditorLayout({
             className="md-editor-select"
           >
             <option value="markdown">Markdown</option>
+            <option value="html">HTML</option>
             <option value="xml">XML</option>
           </select>
 
@@ -207,11 +210,7 @@ export function MarkdownEditorLayout({
         {/* Left: Editor or Fit Variables overlay */}
         <div className="flex flex-col relative" style={{ width: leftPct }}>
           <div className="md-editor-pane-label">
-            {showFitVariables
-              ? 'Fit Variables'
-              : inputMode === 'xml'
-                ? 'XML Input'
-                : 'Markdown Input'}
+            {showFitVariables ? 'Fit Variables' : inputModeLabel}
             {!showFitVariables && (
               <span className="ml-2 text-muted-foreground font-normal normal-case tracking-normal">
                 (Ctrl+Enter to render)
@@ -252,11 +251,7 @@ export function MarkdownEditorLayout({
               className="md-editor-textarea"
               value={inputContent}
               onChange={(e) => onInputContentChange(e.target.value)}
-              placeholder={
-                inputMode === 'xml'
-                  ? 'Paste your resume XML here...'
-                  : 'Type your resume markdown here...'
-              }
+              placeholder={`Paste your resume ${inputMode.toUpperCase()} here...`}
               spellCheck={false}
             />
           )}
@@ -265,7 +260,7 @@ export function MarkdownEditorLayout({
         {/* Draggable divider */}
         <ResizableDivider fraction={dividerFraction} onFractionChange={onDividerFractionChange} />
 
-        {/* Right: Preview (always visible) */}
+        {/* Right: Preview (always visible, always XML rendering) */}
         <div className="flex flex-col" style={{ width: rightPct }}>
           <div className="md-editor-pane-label">
             Rendered Output (8.5″ × 11″)
@@ -278,29 +273,16 @@ export function MarkdownEditorLayout({
           <div className="flex-1 overflow-auto bg-muted p-6">
             {renderedPages ? (
               <div ref={renderContainerRef}>
-                {renderedPages.map((page, index) => {
-                  const pageClassName =
-                    page.mode === 'xml'
-                      ? 'resume-page resume-xml'
-                      : 'resume-page resume-multiscale';
-                  return (
-                    <div
-                      key={index}
-                      ref={(el) => setPageRef(index, el)}
-                      className={pageClassName}
-                      style={pageStyle}
-                    >
-                      {page.mode === 'xml' ? (
-                        <div className="rv-xml-inner">{page.content}</div>
-                      ) : (
-                        <div
-                          className="resume-prose prose prose-sm max-w-none"
-                          dangerouslySetInnerHTML={{ __html: page.html }}
-                        />
-                      )}
-                    </div>
-                  );
-                })}
+                {renderedPages.map((page, index) => (
+                  <div
+                    key={index}
+                    ref={(el) => setPageRef(index, el)}
+                    className="resume-page resume-xml"
+                    style={pageStyle}
+                  >
+                    <div className="rv-xml-inner">{page.content}</div>
+                  </div>
+                ))}
               </div>
             ) : (
               <div className="md-editor-preview-placeholder">
