@@ -4,3 +4,4 @@ When adding an ui element, always refer to the theme.css. If there is no relevan
 Views should always return a Layout and Components. When creating a new View, also create a similarly named Layout and put the layout in src/app/components/layouts
 Do not use React.FormEvent as it has been deprecated. Use a suitable alternative.
 Prefer to use next/dynamic for lazy imports in registry files.
+Do not use relative paths. Always use paths prefixed with @, e.g. @/app/utils/fittingAlgorithm

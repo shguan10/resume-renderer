@@ -346,12 +346,52 @@
     @apply flex items-center gap-1.5 bg-btn-secondary text-btn-secondary-fg font-semibold py-2 px-5 rounded-lg text-sm transition-colors hover:opacity-90 active:scale-[0.98];
   }
 
+  .md-editor-fit-btn {
+    @apply flex items-center gap-1.5 bg-accent/60 text-foreground border border-border font-semibold py-2 px-4 rounded-lg text-sm transition-colors hover:bg-accent hover:text-foreground active:scale-[0.97] disabled:opacity-50;
+  }
+
   .md-editor-select {
     @apply bg-input-background text-foreground border border-border rounded-lg py-2 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-ring;
   }
 
   .md-editor-pane-label {
     @apply text-xs font-semibold text-muted-foreground uppercase tracking-wider px-4 py-2 bg-accent/50 border-b border-border;
+  }
+
+  .md-editor-fit-panel {
+    @apply bg-card border-b border-border px-4 py-3 space-y-3;
+  }
+
+  .md-editor-fit-panel-heading {
+    @apply text-xs font-semibold uppercase tracking-wide text-muted-foreground;
+  }
+
+  .md-editor-fit-panel-pages {
+    @apply space-y-3;
+  }
+
+  .md-editor-fit-panel-page {
+    @apply bg-background border border-border rounded-2xl p-3;
+  }
+
+  .md-editor-fit-panel-page-title {
+    @apply text-sm font-semibold text-foreground mb-2;
+  }
+
+  .md-editor-fit-grid {
+    @apply grid grid-cols-2 gap-x-4 gap-y-2;
+  }
+
+  .md-editor-fit-grid-item {
+    @apply flex flex-col text-xs;
+  }
+
+  .md-editor-fit-label {
+    @apply text-muted-foreground uppercase tracking-wide text-[10px];
+  }
+
+  .md-editor-fit-value {
+    @apply text-sm font-semibold text-foreground;
   }
 
   .md-editor-textarea {
@@ -361,10 +401,11 @@
   /* ── Resume Page (Screen Preview) ──────────────────── */
   .resume-page {
     width: 816px;   /* 8.5in at 96dpi */
-    min-height: 1056px; /* 11in at 96dpi */
+    height: 1056px; /* 11in at 96dpi */
     @apply bg-card text-card-foreground shadow-lg mx-auto mb-6;
     padding: 0.5in;
     box-sizing: border-box;
+    overflow: hidden;
   }
 
   /* ── Resume Print Page ─────────────────────────────── */
@@ -390,21 +431,60 @@
     line-height: 1.4;
   }
 
-  /* ── Fitted resume uses CSS variables from fitting algorithm ── */
-  .resume-fitted .resume-prose {
-    font-size: var(--fit-base-font-size, 10pt);
+  /* ── Multi-variable scaled resume ── */
+  .resume-multiscale .resume-prose {
+    font-size: var(--rv-base-font, 10pt) !important;
+    line-height: var(--rv-line-height, 1.4) !important;
+    letter-spacing: var(--rv-letter-spacing, 0pt) !important;
+    word-spacing: var(--rv-word-spacing, 0pt) !important;
   }
 
-  .resume-fitted .resume-prose h2 {
-    margin-top: var(--fit-h2-margin-top, 10pt);
+  .resume-multiscale .resume-prose h1 {
+    font-size: var(--rv-h1-font, 20pt) !important;
+    margin: 0 0 var(--rv-h1-bottom, 4pt) !important;
+    padding-bottom: 2pt;
   }
 
-  .resume-fitted .resume-prose p {
-    margin-bottom: var(--fit-p-margin-bottom, 4pt);
+  .resume-multiscale .resume-prose h2 {
+    font-size: var(--rv-h2-font, 11pt) !important;
+    margin: var(--rv-section-gap, 10pt) 0 var(--rv-h2-bottom, 4pt) !important;
+    padding-bottom: 2pt;
   }
 
-  .resume-fitted .resume-prose li {
-    margin-bottom: var(--fit-li-margin-bottom, 1pt);
+  .resume-multiscale .resume-prose h3 {
+    font-size: var(--rv-h3-font, 10pt) !important;
+    margin: var(--rv-h3-top, var(--rv-entry-gap, 6pt)) 0 2pt !important;
+  }
+
+  .resume-multiscale .resume-prose h2 + h3 {
+    margin-top: var(--rv-entry-header-gap, var(--rv-entry-gap, 6pt)) !important;
+  }
+
+  .resume-multiscale .resume-prose p {
+    font-size: var(--rv-paragraph-font, var(--rv-base-font, 10pt)) !important;
+    margin: 0 0 var(--rv-paragraph-gap, 4pt) !important;
+  }
+
+  .resume-multiscale .resume-prose ul,
+  .resume-multiscale .resume-prose ol {
+    margin: 0 0 var(--rv-paragraph-gap, 4pt) !important;
+  }
+
+  .resume-multiscale .resume-prose ul {
+    padding-left: var(--rv-list-indent, var(--rv-list-padding, 16pt)) !important;
+  }
+
+  .resume-multiscale .resume-prose ol {
+    padding-left: var(--rv-list-padding, 16pt) !important;
+  }
+
+  .resume-multiscale .resume-prose li {
+    font-size: var(--rv-list-font, var(--rv-paragraph-font, var(--rv-base-font, 10pt))) !important;
+    margin: 0 0 var(--rv-list-gap, 1pt) !important;
+  }
+
+  .resume-multiscale .resume-prose hr {
+    margin: var(--rv-hr-gap, 8pt) 0 !important;
   }
 
   .resume-prose h1 {
@@ -514,9 +594,228 @@
     background: var(--accent);
     font-weight: 700;
   }
+
+  /* ── Diagnostic export button ──────────────────────── */
+  .md-editor-diagnostic-btn {
+    @apply flex items-center gap-1.5 bg-accent text-foreground font-semibold py-2 px-4 rounded-lg text-sm transition-colors hover:bg-border active:scale-[0.98];
+  }
+
+  /* ── Auto-Fit button ─────────────────────────────────── */
+  .md-editor-autofit-btn {
+    @apply flex items-center gap-1.5 bg-accent text-accent-foreground font-semibold py-2 px-4 rounded-lg text-sm transition-colors hover:bg-primary hover:text-primary-foreground active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none;
+  }
+
+  /* ── Draggable divider ───────────────────────────────── */
+  .md-editor-divider {
+    @apply flex-shrink-0 w-1.5 cursor-col-resize bg-border hover:bg-primary/30 transition-colors relative;
+  }
+
+  .md-editor-divider[data-dragging] {
+    @apply bg-primary/40;
+  }
+
+  .md-editor-divider-handle {
+    @apply absolute inset-y-0 -left-1 -right-1;
+  }
+
+  /* ── Preview placeholder ─────────────────────────────── */
+  .md-editor-preview-placeholder {
+    @apply flex items-center justify-center h-full;
+  }
+
+  /* ── Fit Variables overlay ───────────────────────────── */
+  .md-editor-fitvars-overlay {
+    @apply flex-1 overflow-auto bg-background p-4;
+  }
+
+  .md-editor-fitvars-grid {
+    @apply grid grid-cols-2 gap-2;
+  }
+
+  .md-editor-fitvars-item {
+    @apply flex items-center justify-between gap-2 py-1 px-2 rounded bg-muted/50;
+  }
+
+  .md-editor-fitvars-label {
+    @apply text-xs font-medium text-foreground truncate;
+  }
+
+  .md-editor-fitvars-input {
+    @apply w-20 text-xs text-right bg-background border border-border rounded px-2 py-1 font-mono focus:outline-none focus:ring-1 focus:ring-primary disabled:opacity-50;
+  }
+
+  .md-editor-fitvars-toolbar {
+    @apply flex justify-end mb-3;
+  }
+
+  .md-editor-fitvars-reset-btn {
+    @apply text-xs font-semibold text-foreground/80 border border-border rounded px-3 py-1 bg-muted/60 transition hover:border-primary/80 hover:text-primary hover:bg-primary/10 disabled:opacity-50 disabled:pointer-events-none;
+  }
+
+  .resume-prose em {
+    font-style: italic;
+  }
+
+  .resume-prose code {
+    background: var(--muted);
+    padding: 1px 3px;
+    border-radius: 2px;
+    font-size: 9pt;
+  }
+
+  .resume-prose pre {
+    background: var(--muted);
+    padding: 8pt;
+    border-radius: 3px;
+    overflow-x: auto;
+    margin: 0 0 4pt;
+    font-size: 9pt;
+  }
+
+  .resume-prose pre code {
+    background: none;
+    padding: 0;
+  }
+
+  .resume-prose blockquote {
+    border-left: 2px solid var(--border);
+    margin: 0 0 4pt;
+    padding-left: 8pt;
+    color: var(--muted-foreground);
+  }
+
+  .resume-prose table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 0 0 4pt;
+    font-size: 9pt;
+  }
+
+  .resume-prose th, .resume-prose td {
+    border: 1px solid var(--border);
+    padding: 3pt 6pt;
+    text-align: left;
+  }
+
+  .resume-prose th {
+    background: var(--accent);
+    font-weight: 700;
+  }
+  /* ── XML Resume Styles ────────────────────────────────── */
+  .resume-page.resume-xml {
+    display: flex;
+    flex-direction: column;
+    position: relative;
+  }
+
+  .resume-xml .rv-xml-inner {
+    display: flex;
+    flex-direction: column;
+    flex: 1 0 auto;
+  }
+
+  .resume-xml .rv-page-content {
+    flex: 1 0 auto;
+  }
+
+  .resume-xml .rv-name-section {
+    text-align: center;
+    margin-top: var(--rv-name-margin, 0pt);
+  }
+
+  .resume-xml .rv-name {
+    font-size: var(--rv-name-font, 18pt);
+    font-weight: 700;
+    line-height: var(--rv-line-height, 1.3);
+  }
+
+  .resume-xml .rv-name-details {
+    font-size: var(--rv-name-details-font, 10pt);
+    margin-top: var(--rv-name-details-margin, 2pt);
+    line-height: var(--rv-line-height, 1.3);
+  }
+
+  .resume-xml .rv-section {
+    margin-top: var(--rv-section-title-margin, 10pt);
+  }
+
+  .resume-xml .rv-section-title {
+    font-size: var(--rv-section-title-font, 11pt);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    line-height: var(--rv-line-height, 1.3);
+  }
+
+  .resume-xml .rv-section-hr {
+    border: none;
+    border-top: 1.5px solid currentColor;
+    margin: var(--rv-section-hr-margin, 2pt) 0 0 0;
+  }
+
+  .resume-xml .rv-entry {
+    margin-top: var(--rv-entry-header-margin, 6pt);
+  }
+
+  .resume-xml .rv-entry-header {
+    font-size: var(--rv-entry-header-font, 10pt);
+    display: flex;
+    justify-content: space-between;
+    line-height: var(--rv-line-height, 1.3);
+  }
+
+  .resume-xml .rv-entry-header-right {
+    text-align: right;
+    flex-shrink: 0;
+    margin-left: 8pt;
+  }
+
+  .resume-xml .rv-bullet-list {
+    list-style: disc;
+    padding-left: 16pt;
+    margin: 0;
+  }
+
+  .resume-xml .rv-bullet {
+    font-size: var(--rv-bullet-font, 10pt);
+    margin-top: var(--rv-bullet-margin, 1pt);
+    line-height: var(--rv-line-height, 1.3);
+  }
+
+  .resume-xml .rv-bullet:first-child {
+    margin-top: 0;
+  }
+
+  .resume-xml .rv-skill {
+    font-size: var(--rv-skill-font, 10pt);
+    margin-top: var(--rv-skill-margin, 1pt);
+    line-height: var(--rv-line-height, 1.3);
+  }
+
+  .resume-xml .rv-page-footer {
+    flex-shrink: 0;
+    margin-top: auto;
+    display: flex;
+    justify-content: space-between;
+    font-size: var(--rv-footer-font, 8pt);
+    color: var(--muted-foreground);
+    border-top: 1px solid var(--border);
+    padding-top: 4pt;
+  }
+
+  /* Format tag styles */
+  .rv-one-line {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: block;
+  }
+
+  .rv-align-left { text-align: left; }
+  .rv-align-right { text-align: right; }
+  .rv-align-center { text-align: center; }
 }
 
-/* ── Print Styles ──────────────────────────────────────── */
 @media print {
   @page {
     size: 8.5in 11in;

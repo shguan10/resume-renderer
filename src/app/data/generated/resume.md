@@ -1,201 +1,74 @@
-
-**Shane Guan**
-
-shguan10@gmail.com | [shguan10.github.io](http://shguan10.github.io/) | US Citizen
-
-  
-
-**SUMMARY**
-
-*   Bachelor's Degree in **Computer Science** (University Honors) and Minor in **Machine Learning**
-    
-
-*   3+ years non-internship professional experience using **C, C++, Python** in full software development life cycle with **Agile** methodologies and **Azure DevOps**
-    
-*   3+ years non-internship professional experience in reliable and scalable systems design
-    
-*   Strong background in statistics, **deep learning** (PyTorch, Keras), and **natural language processing**
-    
-
-  
-
-**TECHNICAL SKILLS**
-
-  
-
-Languages: C/C++, Python, CUDA, ONNX, Java, SQLite
-
-Machine Learning Frameworks: PyTorch, Tensorflow, DirectML
-
-Graphics Languages: DirectX, HLSL
-
-Debugging Tools: Windbg, Pix
-
-  
-
-**EDUCATION**
-
-**University of Illinois Urbana-Champaign** (UIUC) Champaign, ILMaster of Computer Science _May_ _2025 –_ _Aug_ _202__6 (anticipated)_
-
-  
-
-**Carnegie Mellon University** (CMU) Pittsburgh, PA  
-B.S. in Computer Science _(University Honors)_, Minor in Machine Learning _Aug 2017 – Dec 2020_
-
-  
-
-**WORK EXPERIENCE**
-
-**Microsoft, Inc.** **|** Software Engineer Redmond, WA
-
-DirectML Team _Aug 2023 –_ _Jan 2025_
-
-*   Worked on the Windows DirectML library which turns Machine Learning (ML) workloads from libraries like **ONNX** and **TensorFlow** into optimized pipelines for accelerators like **GPU** and NPU
-    
-
-*   Implemented metacommands that enhance the **GPU** driver support for different vendors
-    
-
-*   Set up 10 test machines for in-house testing of the DirectML library across multiple **GPU** vendors
-    
-
-*   Maintained the **C++** codebase via regression testing and analyzing the library code using Windbg and the DirectX HLSL shaders using PIX
-    
-
-  
-
-**Microsoft, Inc.** **|** Software Engineer Redmond, WA
-
-Connectivity Platform Team _Feb 2021 – Aug 2023_
-
-*   Implemented **C++** data conversion functions and the logic for the public WinRT API of a secure, short-range object communication protocol for embedded IoT devices following IEEE specifications
-    
-
-*   Established the groundwork for fuzz testing of LUI APIs
-    
-
-*   Maintained the **C++** codebase via regression testing and analyzing the library code in Windbg
-    
-
-  
-
-**Microsoft, Inc.** **|** Software Engineer Intern Redmond, WA
-
-Connectivity Platform Team _May 2020 – Aug 2020_
-
-*   Developed a configurable, extendable, and exhaustive test suite in **Python** for a new smart IoT sensor
-    
-
-  
-
-**Microsoft, Inc.** **|** Explore (PM+SWE) Intern Redmond, WA
-
-Platform Integrity Team _May 2019 – Aug 2019_
-
-*   Developed the backend of a prototype feature in Microsoft Defender using Cosmos and Kusto, Microsoft’s in-house big data solution
-    
-
-  
-
-  
-
-**WORK EXPERIENCE** (continued)
-
-  
-
-**Caterpillar, Inc.** **|** Machine Perception Engineer Co-op Pittsburgh, PA
-
-Caterpillar Pittsburgh Automation Center _Aug_ _2018 –_ _May_ _201__9_
-
-*   Worked in image segmentation for use in machine perception, improving upon the state-of-the-art computer vision algorithm ENet
-    
-*   Developed a technique for finding flaws in **training** datasets that improves **inference performance**, implemented in **PyTorch**
-    
-
-**Caterpillar, Inc.** **|** Software Engineer Intern Peoria, IL
-
-AC Building _May 2018 – Aug 2018_
-
-*   Developed an application in **C/C++** to detect a machine's state and measure its payload via telemetry
-    
-
-*   Developed a debug tool in **Python** to simulate multiple Electronic Control Modules, eliminating the need to wait for a full test bench
-
-**TEACHING EXPERIENCE**
-
-Teaching Assistant for 10-417/617 **Intermediate Deep Learning** **(CMU)** _Aug 2019 – May 2020_
-
-*   Led the efforts to create auto-graded unit tests and a better template for the **Backpropagation programming** assignment
-    
-
-*   Led recitation teaching **Vector Differentiation** to 30 students
-
-**NOTABLE PROJECTS & RESEARCH**
-
-
-**Senior Thesis: Exploiting Extra Inputs During Training Time** _Jan 20__20_ _–_ _Dec_ _20__20_
-
-*   Investigated the theoretical basis of when to perform imputation for multimodal ML tasks
-    
-
-*   Proved that if the data has a linear distribution then taking the empirical average of the missing modality is better than trying to predict the missing modality during test time
-    
-
-**Autoencoder-Based Attacks on Deep Learning Models** (_programmed in_ _**Python**_) _Jan 2019 – May 2019_
-
-*   Developed a technique for identifying flaws in training datasets, implemented in **PyTorch**
-    
-
-*   Successfully attacked an ENet **image segmentation** model, resulting in **3x decrease** in IoU score, which revealed that the model was sensitive to darker shades
-    
-
-  
-
-**Dense Convolutional Neural Network for Chest Disease Identification** (_programmed in_ _**Python**_) _April 2018_
-
-*   Achieved better AUROC scores than the state-of-the-art CheXNet model by incorporating additional features and a skip connection
-    
-*   Won the **Best in Show** award at Hack Auton hackathon
-    
-
-  
-
-**Snowflake, the Fridge Management System** (_programmed in_ _**Python, Raspberry Pi**_) _March 2018_
-
-*   Developed an automatic food inventory that suggests recipes, keeps track of expiration dates, and reduces food waste
-    
-
-*   Used **Computer Vision** in TensorFlow to identify the food item and update the inventory on the Amazon EC2 server
-    
-
-  
-
-**Sight2Sound, an Aid to the Blind** (_programmed in_ _**Python, Raspberry Pi**__)_ _January 2018_
-
-*   Transformed videos into AM audio by mapping pixels to frequencies using the Hilbert curve
-    
-
-*   Enabled users to perceive movement across the camera through listening to the device’s audio
-    
-
-  
-
-**PUBLICATIONS**
-
-*   **X. Guan**, J. Lee, P. Wu, Y. Wu. **Machine Learning for Exam Triage**. Proceedings of the 2018 HackAuton hosted by the AutonLab, Pittsburgh, Pennsylvania, 2018.
-    
-
-*   S.Kazadi, G. Jeno, **X. Guan**, N. Nusgart, A. Sheptunov. Decision making swarms. Proceedings of the 28th Modern Artificial Intelligence and Cognitive Science Conference, Fort Wayne, Indiana, 2017.
-    
-
-  
-
-  
-
-  
-
-**HONORS AND AWARDS**
-
-**Best in Show** award at Hack Auton hackathon _2018_
-
-**Best Paper Award** at 2017 Modern Artificial Intelligence and Cognitive Science conference _2017_
+# Shane Guan
+309-868-8331 | shguan10@gmail.com | shguan10.github.io
+
+### SUMMARY
+*   **Data Scientist & ML Engineer** with a B.S. in Computer Science (University Honors) and Minor in Machine Learning from Carnegie Mellon University.
+*   **4 years of professional experience** (Microsoft) specializing in ML model kernel optimization, connectivity protocols, and IoT telemetry.
+*   **Direct Caterpillar Experience:** Former Machine Perception Co-op and Software Intern with a focus on machine health, payload telemetry, and computer vision.
+
+### TECHNICAL SKILLS
+*   **ML/AI:** PyTorch, TensorFlow, Keras, DirectML, Generative AI (Gemini, LLM Agents), Computer Vision, NLP.
+*   **Languages:** Python (Advanced), C/C++, CUDA, SQL (Postgres, Kusto, SQLite), HLSL.
+*   **Tools/Platforms:** Azure DevOps, Windbg, PIX, Raspberry Pi.
+
+### EDUCATION
+**Carnegie Mellon University (CMU)** | Pittsburgh, PA | Dec 2020
+*   B.S. in Computer Science (University Honors), Minor in Machine Learning, **GPA** 3.68
+*   **Relevant Coursework:** TA for 10-617 Intermediate Deep Learning
+
+### WORK EXPERIENCE
+**Microsoft, Inc. | Software Engineer (DirectML Team)** | Aug 2023 – Jan 2025
+*   Optimized ML workloads from ONNX/TensorFlow into high-performance pipelines for GPUs/NPUs, which is directly applicable to **edge computing and on-board machine analytics.**
+*   Implemented metacommands to enhance hardware acceleration, improving model inference efficiency for real-time applications.
+*   Utilized **analytical thinking** to debug complex library code and shaders using Windbg and PIX.
+
+**Microsoft, Inc. | Software Engineer (Connectivity Platform Team)** | Feb 2021 – Aug 2023
+*   Engineered secure, short-range communication protocols for **embedded IoT devices** following IEEE specifications.
+*   Managed data conversion logic for public WinRT APIs, ensuring high **accuracy and attention to detail** in mission-critical connectivity systems.
+*   Established fuzz testing frameworks to ensure long-term system stability and connectivity.
+
+**Microsoft, Inc. | Explore Intern (PM + SWE)** | May 2019 – Aug 2019
+*   **Big Data Querying:** Developed a prototype backend for Microsoft Defender using **Cosmos and Kusto (KQL)**, Microsoft’s internal big data solutions.
+*   **Data Extraction:** Authored complex queries to search, extract, and format large-scale security datasets for feature analysis and requirement gathering.
+
+**Caterpillar, Inc. | Machine Perception Engineer Co-op** | Aug 2018 – May 2019
+*   **Anomaly Detection:** Developed PyTorch-based techniques to identify flaws in training datasets, improving inference performance for machine perception.
+*   **Computer Vision:** Enhanced state-of-the-art ENet algorithms for image segmentation in autonomous heavy machinery.
+---page-break---
+**Caterpillar, Inc. | Software Engineer Intern** | May 2018 – Aug 2018
+*   **Telematics:** Developed a C++ application to detect machine state and measure **payload via telemetry data.**
+*   **Predictive Modeling:** Built a Python-based debug tool to simulate Electronic Control Modules (ECMs), accelerating test cycles for equipment risk models.
+
+### PUBLICATIONS
+*   X. Guan, J. Lee, P. Wu, Y. Wu. *Machine Learning for Exam Triage.* Proceedings of the 2018 HackAuton hosted by the AutonLab, Pittsburgh, Pennsylvania, 2018.
+*   S.Kazadi, G. Jeno, X. Guan, N. Nusgart, A. Sheptunov. *Decision making swarms.* Proceedings of the 28th Modern Artificial Intelligence and Cognitive Science Conference, Fort Wayne, Indiana, 2017. 
+
+### RESEARCH & THESIS
+**Senior Thesis: Exploiting Extra Inputs During Training Time** | Jan 2020 – Dec 2020
+*   Investigated theoretical basis for **multimodal ML tasks**, specifically focusing on data imputation.
+*   **Statistical Analysis:** Proved through linear distribution analysis that empirical averaging outperforms predictive imputation during test time for missing modalities.
+
+**Autoencoder-Based Attacks on Deep Learning Models** | Jan 2019 – May 2019
+*   Developed a technique for identifying flaws in training datasets using PyTorch.
+*   Identified model sensitivity to environmental lighting (darker shades), a critical factor in **outdoor heavy equipment operation.**
+
+### NOTABLE PROJECTS
+**PerceptionTrainer (Generative AI & Database Management)** | Jan 2026 – March 2026
+*   **Full-Stack Data Architecture:** Architected a scalable backend using **PostgreSQL and Supabase** to support user test results and a friendship table.
+*   **Query Optimization:** Implemented efficient data access patterns and relational schemas to support real-time performance.
+*   **GenAI Integration:** Leveraged Gemini and AI agents to accelerate the SDLC, including rapid prototyping, validation, and migration of database schemas.
+
+**Chest Disease Identification (Dense CNN)** | April 2018
+*   Achieved better AUROC scores than state-of-the-art CheXNet by incorporating skip connections and additional features.
+*   **Award:** Won "Best in Show" at Hack Auton hackathon for **predictive risk modeling.**
+
+**Snowflake: IoT Fridge Management** | March 2018
+*   Built an automated inventory system using **Computer Vision (TensorFlow)** and Raspberry Pi to track expiration and reduce waste.
+
+**Sight2Sound: Aid for the Blind** | Jan 2018
+*   Mapped video pixels to audio frequencies using Hilbert curves to enable perception of movement via sound.
+
+### TEACHING EXPERIENCE
+**Teaching Assistant: Intermediate Deep Learning (CMU)** | Aug 2019 – May 2020
+*   Led recitations on **Vector Differentiation** and advanced statistical concepts for 30+ students.
+*   Developed auto-graded unit tests and templates for Backpropagation programming assignments.

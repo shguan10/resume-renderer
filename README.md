@@ -1,11 +1,7 @@
 
-  # Personal Website
+  # Markdown to Paper
 
-  ## Setup
-
-  Blog posts are formatted in markdown.
-
-  Put new blog posts in blog/
+  Generate a good formatted resume in pdf format given markdown.
 
   ## Running the code
 
