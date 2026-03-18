@@ -280,6 +280,16 @@ export function cascadeUp(
 
 // ── Core fitting loop ────────────────────────────────────────────────────
 
+/**
+ * Fit content to page by adjusting styles on the actual rendered page elements.
+ * Both pages share the same FitVariables.
+ *
+ * @param pageElements - References to the rendered page divs (1 or 2 elements)
+ * @param styleDefinitions - Ordered definitions describing adjustable knobs.
+ * @param styleValues - Current values from React state (copied before fitting).
+ * @param setStyleValues - Setter for updating the UI state after each adjustment.
+ * @param waitForRenderReady - Promise that resolves once the layout has rendered the latest vars.
+ */
 export async function fitContentToPage(
   pageElements: HTMLElement[],
   styleDefinitions: ResizeableStyleDefinition[],
