@@ -7,6 +7,7 @@
     "build": "vite build",
     "dev": "vite",
     "preview": "vite preview",
+    "deploy": "vite build --base=/app/resume-renderer/ && tar czvf dist.tar.gz dist && rm -rf ../shguan10.github.io/public/app/resume-renderer && tar xzvf dist.tar.gz -C ../shguan10.github.io/public/app && mv ../shguan10.github.io/public/app/dist ../shguan10.github.io/public/app/resume-renderer && cd ../shguan10.github.io && git add . && git commit -m 'Update resume-renderer' && git push",
     "build:dev": "vite build --mode development",
     "tsc": "tsc --noEmit",
     "test": "vitest",
