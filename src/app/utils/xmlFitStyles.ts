@@ -44,19 +44,19 @@ export function buildXmlStyleDefinitions(): ResizeableStyleDefinition[] {
     // section-title-font >= entry-header-font >= bullet-font
     // section-title-font >= skill-font
     // name-font >= name-details-font
-    makeFontReducer('bullet-font', 'Bullet font (pt)', 10, 6, 0.5, [], STAGE,
+    makeFontReducer('bullet-font', 'Bullet font (pt)', 12, 6, 0.5, [], STAGE,
       'entry-header-font'),
-    makeFontReducer('skill-font', 'Skill font (pt)', 10, 6, 0.5, [], STAGE,
+    makeFontReducer('skill-font', 'Skill font (pt)', 12, 6, 0.5, [], STAGE,
       'section-title-font'),
     makeFontReducer(
-      'entry-header-font', 'Entry header font (pt)', 10, 6, 0.5,
+      'entry-header-font', 'Entry header font (pt)', 14, 6, 0.5,
       ['bullet-font'], STAGE, 'section-title-font',
     ),
     makeFontReducer(
-      'section-title-font', 'Section title font (pt)', 11, 6, 0.5,
+      'section-title-font', 'Section title font (pt)', 16, 6, 0.5,
       ['entry-header-font', 'skill-font'], STAGE, null,
     ),
-    makeFontReducer('name-details-font', 'Name details font (pt)', 10, 6, 0.5, [], STAGE,
+    makeFontReducer('name-details-font', 'Name details font (pt)', 12, 6, 0.5, [], STAGE,
       'name-font'),
     makeFontReducer(
       'name-font', 'Name font (pt)', 18, 8, 0.5,

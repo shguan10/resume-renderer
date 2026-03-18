@@ -8,6 +8,7 @@
  */
 
 const PAGE_HEIGHT_PX = 1056; // 11in × 96dpi
+const PAGE_WIDTH_PX = 816;
 
 export type StyleValues = Record<string, number>;
 
@@ -382,7 +383,7 @@ export async function fitContentToPage(
     }
     const overflowing = pageElements.flatMap(page =>
       Array.from(page.querySelectorAll<HTMLElement>('.rv-one-line'))
-        .filter(el => el.scrollWidth > el.clientWidth)
+        .filter(el => el.scrollWidth > PAGE_WIDTH_PX)
     );
     if (overflowing.length === 0) break;
 
