@@ -104,13 +104,13 @@ function renderExperienceHeader(header: ResumeNode): ReactNode {
 
   return (
     <div className="rv-entry-header">
-      <div className="rv-entry-header-line rv-one-line">
+      <div className="rv-entry-header-line">
         <span className="rv-entry-header-left">
           {companyName && <strong>{renderInline(companyName)}</strong>}
         </span>
         <span className="rv-entry-header-right">{date}</span>
       </div>
-      <div className="rv-entry-header-line rv-one-line">
+      <div className="rv-entry-header-line">
         <span className="rv-entry-header-left">
           {position && renderInline(position)}
           {team && <>{' | '}{renderInline(team)}</>}
@@ -150,7 +150,7 @@ function renderHeader(header: ResumeNode, type: 'experience' | 'project' | 'educ
 
   return (
     <div className="rv-entry-header">
-      <div className="rv-entry-header-line rv-one-line">
+      <div className="rv-entry-header-line">
         <span className="rv-entry-header-left">
           {leftParts.map((part, idx) => (
             <Fragment key={`header-left-${idx}`}>

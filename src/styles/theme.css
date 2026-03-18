@@ -766,6 +766,9 @@
   }
 
   .rv-entry-header-line {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
     display: flex;
     justify-content: space-between;
     width: 100%;
@@ -812,9 +815,6 @@
 
   /* Format tag styles */
   .rv-one-line {
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
     display: inline;
   }
 
