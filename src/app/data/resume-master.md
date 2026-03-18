@@ -1,4 +1,3 @@
-<!-- This is my master resume with everything listed. all resumes that are tailored to job descriptions will pull information from this master resume. -->
 # Shane Guan
 **Peoria, IL, USA** | **shguan10@gmail.com** | [**shguan10.github.io**](https://shguan10.github.io)
 
