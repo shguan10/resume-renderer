@@ -26,6 +26,8 @@ export interface ResizeableStyleDefinition {
   parentKey: string | null;
   childKeys: string[];
   description: string;
+  parent?: ResizeableStyle | null; // this is a cached reference to the parent
+  children?: ResizeableStyle[]; // cached reference to the children
   /** Given current value + resolved children, return whether there's still room to adjust. */
   hasRoomToChange: (currentValue: number, children: ResizeableStyle[]) => boolean;
   /** Return a NextValueGetter producing values to try, or undefined if no room. */
@@ -43,15 +45,33 @@ export interface FitResult {
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────────
-
-export function resolveChildren(style: ResizeableStyleDefinition, allStyles: ResizeableStyle[]): ResizeableStyle[] {
-  return style.childKeys
-    .map(k => allStyles.find(s => s.key === k))
-    .filter((s): s is ResizeableStyle => s !== undefined);
-}
-
 function findStyle(styles: ResizeableStyle[], key: string): ResizeableStyle | undefined {
   return styles.find(s => s.key === key);
+}
+
+/**
+ * Resolves and injects parent/child object references into an array of styles.
+ * 
+ * This function performs an in-place mutation of the `styles` objects, 
+ * transforming string-based keys (`parentKey`, `childKeys`) into direct 
+ * cached references (`parent`, `children`). 
+ * 
+ * @param styles - An array of style objects to be interconnected.
+ * 
+ * @example
+ * // After calling this, style.children[0] will point to the actual 
+ * // ResizeableStyle object instead of being null.
+ * attachStyleHierarchy(myStyles);
+ */
+function attachStyleHierarchy(styles: ResizeableStyle[]): void {
+  const styleMap = new Map(styles.map((style) => [style.key, style]));
+  for (const style of styles) {
+    const children = style.childKeys
+      .map((childKey) => styleMap.get(childKey))
+      .filter((s): s is ResizeableStyle => s !== undefined);
+    style.children = children;
+    style.parent = style.parentKey ? styleMap.get(style.parentKey) ?? null : null;
+  }
 }
 
 /** Build a read-only snapshot of ResizeableStyle objects for CSS var computation. */
@@ -203,7 +223,7 @@ function tryShrinkRecursive(key: string, allStyles: ResizeableStyle[], depth = 0
   if (!style) return false;
   if (style.getCurrentValue() <= style.minValue) return false;
 
-  const children = resolveChildren(style, allStyles);
+  const children = style.children ?? [];
 
   // Try direct shrink
   if (style.hasRoomToChange(style.getCurrentValue(), children)) {
@@ -314,6 +334,8 @@ export async function fitContentToPage(
     },
   }));
 
+  attachStyleHierarchy(styles);
+
   const phaseLog: string[] = [];
   let totalTrials = 0;
   const MAX_TOTAL_TRIALS = 500;
@@ -331,7 +353,7 @@ export async function fitContentToPage(
     outerLoop:
     while (totalTrials < MAX_TOTAL_TRIALS) {
       const anyCanChange = styles.some((style) => {
-        const children = resolveChildren(style, styles);
+        const children = style.children ?? [];
         return style.hasRoomToChange(style.getCurrentValue(), children);
       });
       if (!anyCanChange) {
@@ -340,7 +362,7 @@ export async function fitContentToPage(
       }
 
       for (const style of styles) {
-        const children = resolveChildren(style, styles);
+        const children = style.children ?? [];
         if (!style.hasRoomToChange(style.getCurrentValue(), children)) continue;
         const valueGenerator = style.getStageValues(style.getCurrentValue(), children);
         if (valueGenerator === undefined) continue;
