@@ -321,8 +321,10 @@ export async function fitContentToPage(
   let totalTrials = 0;
   const MAX_TOTAL_TRIALS = 500;
 
-  async function applyAndCheckFit(): Promise<number> {
-    await waitForRenderReady();
+  async function applyAndCheckFit(skipWait = false): Promise<number> {
+    if (!skipWait) {
+      await waitForRenderReady();
+    }
     return allPagesFit(pageElements);
   }
 
@@ -356,6 +358,7 @@ export async function fitContentToPage(
           }
           console.log(`Trying ${style.description} at ${valueToTry}`);
           style.setCurrentValue(valueToTry);
+          console.log(`awaiting height check, trial: ${totalTrials}`);
           const trialHeight = await applyAndCheckFit();
           if (trialHeight <= PAGE_HEIGHT_PX) {
             phaseLog.push(
@@ -373,7 +376,10 @@ export async function fitContentToPage(
   const MAX_WIDTH_TRIALS = 200;
 
   while (widthTrials < MAX_WIDTH_TRIALS) {
-    await waitForRenderReady();
+    if (widthTrials > 0) {
+      console.log(`awaiting width trial ${widthTrials}`);
+      await waitForRenderReady();
+    }
     const overflowing = pageElements.flatMap(page =>
       Array.from(page.querySelectorAll<HTMLElement>('.rv-one-line'))
         .filter(el => el.scrollWidth > el.clientWidth)
@@ -407,7 +413,8 @@ export async function fitContentToPage(
   }
 
   // Check final height after width adjustments
-  const finalHeight = await applyAndCheckFit();
+  console.log("awaiting final height check\n");
+  const finalHeight = await applyAndCheckFit(true);
   const didAdjust = totalTrials > 0;
 
   if (!didAdjust && initialHeight <= PAGE_HEIGHT_PX) {

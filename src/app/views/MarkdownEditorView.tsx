@@ -107,18 +107,22 @@ export function MarkdownEditorView() {
   const renderReadyResolver = useRef<(() => void) | null>(null);
   const renderReadyPending = useRef(false);
   const waitForRenderReady = useCallback(() => {
+    console.log("waitForRenderReady\n");
     if (renderReadyPending.current) {
+      console.log("waitForRenderReady -- immediately resolved\n");
       renderReadyPending.current = false;
       return Promise.resolve();
     }
     return new Promise<void>((resolve) => {
       renderReadyResolver.current = () => {
         renderReadyResolver.current = null;
+        console.log("waitForRenderReady -- resolved\n");
         resolve();
       };
     });
   }, []);
   const signalRenderReady = useCallback(() => {
+    console.log("signalRenderReady\n");
     if (renderReadyResolver.current) {
       renderReadyResolver.current();
     } else {
