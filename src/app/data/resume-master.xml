@@ -1,0 +1,189 @@
+<Resume>
+  <NameSection>
+    <Name>Shane Guan</Name>
+    <Location>Peoria, IL, USA</Location>
+    <Email>shguan10@gmail.com</Email>
+    <Website>shguan10.github.io</Website>
+  </NameSection>
+
+  <ResumeSection title="SUMMARY">
+    <Bullet>Bachelor's Degree in Computer Science (University Honors) and Minor in Machine Learning</Bullet>
+    <Bullet>4 years non-internship professional experience using C, C++, Python in full software development life cycle with Agile methodologies and Azure DevOps</Bullet>
+    <Bullet>Strong background in statistics, deep learning (PyTorch, Keras), and natural language processing</Bullet>
+  </ResumeSection>
+
+  <ResumeSection title="TECHNICAL SKILLS">
+    <Skill>
+      <FormatOneLine>
+        <FormatBold>Languages:</FormatBold> C/C++, Python, CUDA, TypeScript, JavaScript, Java, HLSL, HTML, CSS
+      </FormatOneLine>
+    </Skill>
+    <Skill>
+      <FormatOneLine>
+        <FormatBold>Frameworks &amp; Tools:</FormatBold> PyTorch, TensorFlow, DirectML, DirectX, Tailwind, Vite, Deno
+      </FormatOneLine>
+    </Skill>
+    <Skill>
+      <FormatOneLine>
+        <FormatBold>Data &amp; Backend:</FormatBold> Postgres, SQLite, Supabase, Cosmos, Kusto, Azure DevOps
+      </FormatOneLine>
+    </Skill>
+  </ResumeSection>
+
+  <ResumeSection title="WORK EXPERIENCE">
+    <ExperienceItem>
+      <Header>
+        <CompanyName>Microsoft, Inc.</CompanyName>
+        <CompanyLocation>Redmond, WA</CompanyLocation>
+        <Position>Software Engineer</Position>
+        <Team>DirectML Team</Team>
+        <Date>Aug 2023 – Jan 2025</Date>
+      </Header>
+      <Bullet>Worked on the Windows DirectML library which turns Machine Learning (ML) workloads from libraries like ONNX and TensorFlow into optimized pipelines for accelerators like GPU and NPU</Bullet>
+      <Bullet>Implemented metacommands that enhance the GPU driver support for different vendors</Bullet>
+      <Bullet>Set up 10 test machines for in-house testing of the DirectML library across multiple GPU vendors</Bullet>
+      <Bullet>Maintained the C++ codebase via regression testing and analyzing the library code using Windbg and the DirectX HLSL shaders using PIX</Bullet>
+    </ExperienceItem>
+
+    <ExperienceItem>
+      <Header>
+        <CompanyName>Microsoft, Inc.</CompanyName>
+        <CompanyLocation>Redmond, WA</CompanyLocation>
+        <Position>Software Engineer</Position>
+        <Team>Connectivity Platform Team</Team>
+        <Date>Feb 2021 – Aug 2023</Date>
+      </Header>
+      <Bullet>Implemented C++ data conversion functions and the logic for the public WinRT API of a secure, short-range object communication protocol for embedded IoT devices following IEEE specifications</Bullet>
+      <Bullet>Established the groundwork for fuzz testing of LUI APIs</Bullet>
+      <Bullet>Maintained the C++ codebase via regression testing and analyzing the library code in Windbg</Bullet>
+    </ExperienceItem>
+
+    <ExperienceItem>
+      <Header>
+        <CompanyName>Microsoft, Inc.</CompanyName>
+        <CompanyLocation>Redmond, WA</CompanyLocation>
+        <Position>Software Engineer Intern</Position>
+        <Team>Connectivity Platform Team</Team>
+        <Date>May 2020 – Aug 2020</Date>
+      </Header>
+      <Bullet>Developed a configurable, extendable, and exhaustive test suite in Python for a new smart IoT sensor</Bullet>
+    </ExperienceItem>
+
+    <ExperienceItem>
+      <Header>
+        <CompanyName>Microsoft, Inc.</CompanyName>
+        <CompanyLocation>Redmond, WA</CompanyLocation>
+        <Position>Explore (PM+SWE) Intern</Position>
+        <Team>Platform Integrity Team</Team>
+        <Date>May 2019 – Aug 2019</Date>
+      </Header>
+      <Bullet>Developed the backend of a prototype feature in Microsoft Defender using Cosmos and Kusto, Microsoft’s in-house big data solution</Bullet>
+    </ExperienceItem>
+
+    <ExperienceItem>
+      <Header>
+        <CompanyName>Caterpillar, Inc.</CompanyName>
+        <CompanyLocation>Pittsburgh, PA</CompanyLocation>
+        <Position>Machine Perception Engineer Co-op</Position>
+        <Date>Aug 2018 – May 2019</Date>
+      </Header>
+      <Bullet>Worked in image segmentation for use in machine perception, improving upon the state-of-the-art computer vision algorithm ENet</Bullet>
+      <Bullet>Developed a technique for finding flaws in training datasets that improves inference performance, implemented in PyTorch</Bullet>
+    </ExperienceItem>
+
+    <ExperienceItem>
+      <Header>
+        <CompanyName>Caterpillar, Inc.</CompanyName>
+        <CompanyLocation>Peoria, IL</CompanyLocation>
+        <Position>Software Engineer Intern</Position>
+        <Date>May 2018 – Aug 2018</Date>
+      </Header>
+      <Bullet>Developed an application in C/C++ to detect a machine's state and measure its payload via telemetry</Bullet>
+      <Bullet>Developed a debug tool in Python to simulate multiple Electronic Control Modules, eliminating the need to wait for a full test bench</Bullet>
+    </ExperienceItem>
+  </ResumeSection>
+
+  <FormatPageBreak />
+
+  <ResumeSection title="TEACHING EXPERIENCE">
+    <ExperienceItem>
+      <Header>
+        <CompanyName>Carnegie Mellon University (CMU)</CompanyName>
+        <CompanyLocation>Pittsburgh, PA</CompanyLocation>
+        <Position>Teaching Assistant</Position>
+        <Team>10-617 Intermediate Deep Learning</Team>
+        <Date>Aug 2019 – May 2020</Date>
+      </Header>
+      <Bullet>Led the efforts to create auto-graded unit tests and a better template for the Backpropagation programming assignment</Bullet>
+      <Bullet>Led recitations on Vector Differentiation for 30 students.</Bullet>
+    </ExperienceItem>
+  </ResumeSection>
+
+  <ResumeSection title="NOTABLE PROJECTS &amp; RESEARCH">
+    <ProjectItem>
+      <Header>
+        <ProjectName>PerceptionTrainer</ProjectName>
+        <Date>Jan 2026 – March 2026</Date>
+      </Header>
+      <Bullet>Technologies used: Vite, Typescript, Tailwind, Supabase</Bullet>
+      <Bullet>Created a gamified skill training web app for artists and musicians.</Bullet>
+      <Bullet>Leveraged AI agents to accelerate the whole software development life cycle.</Bullet>
+    </ProjectItem>
+
+    <ProjectItem>
+      <Header>
+        <ProjectName>Senior Thesis: Exploiting Extra Inputs During Training Time</ProjectName>
+        <Date>Jan 2020 – Dec 2020</Date>
+      </Header>
+      <Bullet>Investigated the theoretical basis of when to perform imputation for multimodal ML tasks</Bullet>
+      <Bullet>Proved linear distribution empirical averaging is superior to prediction during test time</Bullet>
+    </ProjectItem>
+
+    <ProjectItem>
+      <Header>
+        <ProjectName>Autoencoder-Based Attacks on Deep Learning Models</ProjectName>
+        <Date>Jan 2019 – May 2019</Date>
+      </Header>
+      <Bullet>Successfully attacked an ENet image segmentation model, resulting in 3x decrease in IoU score.</Bullet>
+    </ProjectItem>
+
+    <ProjectItem>
+      <Header>
+        <ProjectName>Dense CNN for Chest Disease Identification</ProjectName>
+        <Date>April 2018</Date>
+      </Header>
+      <Bullet>Achieved better AUROC scores than CheXNet model. Won "Best in Show" at Hack Auton.</Bullet>
+    </ProjectItem>
+
+    <ProjectItem>
+      <Header>
+        <ProjectName>Snowflake, the Fridge Management System</ProjectName>
+        <Date>March 2018</Date>
+      </Header>
+      <Bullet>Developed automatic food inventory system using CV in TensorFlow.</Bullet>
+    </ProjectItem>
+
+    <ProjectItem>
+      <Header>
+        <ProjectName>Sight2Sound, an Aid to the Blind</ProjectName>
+        <Date>January 2018</Date>
+      </Header>
+      <Bullet>Transformed videos into AM audio by mapping pixels to frequencies using the Hilbert curve.</Bullet>
+    </ProjectItem>
+  </ResumeSection>
+
+  <ResumeSection title="EDUCATION">
+    <Header>
+      <SchoolName>Carnegie Mellon University (CMU)</SchoolName>
+      <SchoolLocation>Pittsburgh, PA</SchoolLocation>
+      <SchoolGpa>GPA: 3.68</SchoolGpa>
+      <Date>Aug 2017 – Dec 2020</Date>
+    </Header>
+    <Bullet>B.S. in Computer Science (University Honors), Minor in Machine Learning</Bullet>
+  </ResumeSection>
+
+  <ResumeSection title="PUBLICATIONS">
+    <Bullet>X. Guan, J. Lee, P. Wu, Y. Wu. Machine Learning for Exam Triage. HackAuton, 2018.</Bullet>
+    <Bullet>S.Kazadi, G. Jeno, X. Guan, N. Nusgart, A. Sheptunov. Decision making swarms. MAICS Conference, 2017.</Bullet>
+  </ResumeSection>
+</Resume>
