@@ -1,5 +1,5 @@
 # Shane Guan
-309-868-8331 | shguan10@gmail.com | shguan10.github.io
+shguan10@gmail.com | https://shguan10.github.io
 
 ## SUMMARY
 *   **Data Scientist & ML Engineer** with a B.S. in Computer Science (University Honors) and Minor in Machine Learning from Carnegie Mellon University.
