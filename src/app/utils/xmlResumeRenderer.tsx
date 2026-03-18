@@ -95,7 +95,41 @@ function renderNameSection(ns: ResumeNode): ReactNode {
   );
 }
 
+function renderExperienceHeader(header: ResumeNode): ReactNode {
+  const companyName = findChild(header, 'CompanyName');
+  const position = findChild(header, 'Position');
+  const team = findChild(header, 'Team');
+  const companyLocation = findChild(header, 'CompanyLocation');
+  const date = getTextContent(findChild(header, 'Date') ?? '');
+
+  return (
+    <div className="rv-entry-header">
+      <div className="rv-entry-header-line rv-one-line">
+        <span className="rv-entry-header-left">
+          {companyName && <strong>{renderInline(companyName)}</strong>}
+        </span>
+        <span className="rv-entry-header-right">{date}</span>
+      </div>
+      <div className="rv-entry-header-line rv-one-line">
+        <span className="rv-entry-header-left">
+          {position && renderInline(position)}
+          {team && <>{' | '}{renderInline(team)}</>}
+        </span>
+        {companyLocation && (
+          <span className="rv-entry-header-right">{renderInline(companyLocation)}</span>
+        )}
+      </div>
+    </div>
+  );
+}
+
 function renderHeader(header: ResumeNode, type: 'experience' | 'project' | 'education'): ReactNode {
+  // Experience: two-line header
+  if (type === 'experience') {
+    return renderExperienceHeader(header);
+  }
+
+  // Project & Education: single-line header
   const leftParts: ReactNode[] = [];
   const date = getTextContent(findChild(header, 'Date') ?? '');
 
@@ -106,16 +140,7 @@ function renderHeader(header: ResumeNode, type: 'experience' | 'project' | 'educ
     leftParts.push(bold ? <strong>{rendered}</strong> : rendered);
   };
 
-  if (type === 'experience') {
-    for (const [tag, bold] of [
-      ['CompanyName', true],
-      ['Position', false],
-      ['Team', false],
-      ['CompanyLocation', false],
-    ] as const) {
-      pushField(tag, bold);
-    }
-  } else if (type === 'project') {
+  if (type === 'project') {
     pushField('ProjectName', true);
   } else {
     for (const tag of ['SchoolName', 'SchoolLocation', 'SchoolGpa']) {
@@ -124,16 +149,18 @@ function renderHeader(header: ResumeNode, type: 'experience' | 'project' | 'educ
   }
 
   return (
-    <div className="rv-entry-header rv-one-line">
-      <span className="rv-entry-header-left">
-        {leftParts.map((part, idx) => (
-          <Fragment key={`header-left-${idx}`}>
-            {idx > 0 && ' | '}
-            {part}
-          </Fragment>
-        ))}
-      </span>
-      <span className="rv-entry-header-right">{date}</span>
+    <div className="rv-entry-header">
+      <div className="rv-entry-header-line rv-one-line">
+        <span className="rv-entry-header-left">
+          {leftParts.map((part, idx) => (
+            <Fragment key={`header-left-${idx}`}>
+              {idx > 0 && ' | '}
+              {part}
+            </Fragment>
+          ))}
+        </span>
+        <span className="rv-entry-header-right">{date}</span>
+      </div>
     </div>
   );
 }
