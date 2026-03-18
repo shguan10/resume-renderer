@@ -368,6 +368,7 @@ export async function fitContentToPage(
     if (overflowing.length === 0) break;
 
     const el = overflowing[0];
+    if (!el) break;
     const fontKey = getFontKeyForElement(el);
     if (!fontKey) {
       phaseLog.push('⚠️ Cannot determine font knob for overflowing one-line element.');

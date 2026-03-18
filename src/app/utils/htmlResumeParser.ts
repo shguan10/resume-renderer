@@ -187,8 +187,9 @@ function createEntryFromP(
     const afterBold = fullText.substring(boldEnd);
     const parts = afterBold.split('|').map(s => s.trim()).filter(Boolean);
     for (let i = parts.length - 1; i >= 0; i--) {
-      if (/\d{4}/.test(parts[i])) {
-        dateText = parts[i];
+      const candidate = parts[i];
+      if (candidate && /\d{4}/.test(candidate)) {
+        dateText = candidate;
         break;
       }
     }
@@ -213,9 +214,10 @@ function createEntryFromP(
     const boldEnd = fullText.indexOf(boldText) + boldText.length;
     const afterBold = fullText.substring(boldEnd);
     const remaining = afterBold.split('|').map(s => s.trim()).filter(s => s && s !== dateText && !/\d{4}/.test(s));
-    if (remaining.length > 0) {
+    const overrideLocation = remaining[0];
+    if (overrideLocation) {
       // Override location from the position line if present (e.g., "Pittsburgh, PA")
-      header.children.push({ tag: 'CompanyLocation', attributes: {}, children: [remaining[0]] });
+      header.children.push({ tag: 'CompanyLocation', attributes: {}, children: [overrideLocation] });
     }
   } else if (isExperience) {
     // Parse "Company | Position (Team)" from bold text
@@ -226,8 +228,14 @@ function createEntryFromP(
     if (boldParts[1]) {
       const posMatch = boldParts[1].match(/^(.+?)\s*\((.+?)\)\s*$/);
       if (posMatch) {
-        header.children.push({ tag: 'Position', attributes: {}, children: [posMatch[1].trim()] });
-        header.children.push({ tag: 'Team', attributes: {}, children: [posMatch[2].trim()] });
+        const positionText = posMatch[1]?.trim();
+        const teamText = posMatch[2]?.trim();
+        if (positionText) {
+          header.children.push({ tag: 'Position', attributes: {}, children: [positionText] });
+        }
+        if (teamText) {
+          header.children.push({ tag: 'Team', attributes: {}, children: [teamText] });
+        }
       } else {
         header.children.push({ tag: 'Position', attributes: {}, children: [boldParts[1]] });
       }
@@ -238,8 +246,9 @@ function createEntryFromP(
     const boldEnd = fullText.indexOf(boldText) + boldText.length;
     const afterBold = fullText.substring(boldEnd);
     const remaining = afterBold.split('|').map(s => s.trim()).filter(s => s && s !== dateText && !/\d{4}/.test(s));
-    if (remaining.length > 0) {
-      header.children.push({ tag: 'SchoolLocation', attributes: {}, children: [remaining[0]] });
+    const overrideLocation = remaining[0];
+    if (overrideLocation) {
+      header.children.push({ tag: 'SchoolLocation', attributes: {}, children: [overrideLocation] });
     }
   } else {
     // Project
