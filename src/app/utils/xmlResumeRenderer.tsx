@@ -368,12 +368,60 @@ function hasSemanticStructure(root: ResumeNode): boolean {
   );
 }
 
+/**
+ * Pre-process root children: if a ResumeSection contains a FormatPageBreak,
+ * split it into the original section (before the break) and a new
+ * "(continued)" section (after the break), with a FormatPageBreak between them.
+ */
+function expandMidSectionPageBreaks(children: (ResumeNode | string)[]): (ResumeNode | string)[] {
+  const result: (ResumeNode | string)[] = [];
+  for (const child of children) {
+    if (typeof child === 'string' || child.tag !== 'ResumeSection') {
+      result.push(child);
+      continue;
+    }
+    const splits = splitSectionAtPageBreaks(child);
+    for (let i = 0; i < splits.length; i++) {
+      if (i > 0) {
+        result.push({ tag: 'FormatPageBreak', attributes: {}, children: [] });
+      }
+      result.push(splits[i]!);
+    }
+  }
+  return result;
+}
+
+function splitSectionAtPageBreaks(section: ResumeNode): ResumeNode[] {
+  const title = section.attributes.title ?? '';
+  const segments: (ResumeNode | string)[][] = [[]];
+
+  for (const child of section.children) {
+    if (typeof child !== 'string' && child.tag === 'FormatPageBreak') {
+      segments.push([]);
+    } else {
+      segments[segments.length - 1]!.push(child);
+    }
+  }
+
+  if (segments.length === 1) return [section];
+
+  return segments.map((seg, idx) => ({
+    tag: 'ResumeSection',
+    attributes: {
+      ...section.attributes,
+      title: idx === 0 ? title : `${title} (continued)`,
+    },
+    children: seg,
+  }));
+}
+
 export function renderXmlResume(root: ResumeNode, pageLayout: '1' | '2'): XmlRenderedPage[] {
   const nameInfo = extractNameInfo(root);
   const pageContents: ReactNode[][] = [[]];
   const useXmlStructure = hasSemanticStructure(root);
+  const expandedChildren = expandMidSectionPageBreaks(root.children);
 
-  for (const child of root.children) {
+  for (const child of expandedChildren) {
     if (typeof child === 'string') {
       if (!useXmlStructure) {
         pageContents[pageContents.length - 1]!.push(child);
