@@ -4,7 +4,7 @@
     <Name>Shane Guan</Name>
     <Location>Peoria, IL, USA</Location>
     <Email>shguan10@gmail.com</Email>
-    <Website>shguan10.github.io</Website>
+    <Website>https://shguan10.github.io</Website>
   </NameSection>
 
   <ResumeSection title="SUMMARY">
@@ -116,7 +116,7 @@
         <Date>Aug 2019 – May 2020</Date>
       </Header>
       <Bullet>Led the efforts to create auto-graded unit tests and a better template for the Backpropagation programming assignment</Bullet>
-      <Bullet>Led recitations on Vector Differentiation for 30 students.</Bullet>
+      <Bullet>Led recitations on Vector Differentiation for 100+ students.</Bullet>
     </ExperienceItem>
   </ResumeSection>
 
@@ -129,6 +129,16 @@
       <Bullet>Technologies used: Vite, Typescript, Tailwind, Supabase</Bullet>
       <Bullet>Created a gamified skill training web app for artists and musicians.</Bullet>
       <Bullet>Leveraged AI agents to accelerate the whole software development life cycle.</Bullet>
+    </ProjectItem>
+
+    <ProjectItem>
+      <Header>
+        <ProjectName>Resume-Renderer</ProjectName>
+        <Date>March 2026</Date>
+      </Header>
+      <Bullet>Developed a tool to auto-format and tailor resumes to job descriptions; it supports Markdown, HTML, and XML formats. This reduces manual effort during job applications.</Bullet>
+      <Bullet>Leveraged AI agents to accelerate the whole software development life cycle.</Bullet>
+      <Bullet>Technologies used: Vite, Typescript, Tailwind</Bullet>
     </ProjectItem>
 
     <ProjectItem>
